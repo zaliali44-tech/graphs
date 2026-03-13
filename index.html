@@ -1483,19 +1483,35 @@
       const highlights = Array.from(document.querySelectorAll('#highlightsList li')).map(function(li){ return li.textContent; });
       const rca = Array.from(document.querySelectorAll('#rcaList li')).map(function(li){ return li.textContent; });
       const actions = Array.from(document.querySelectorAll('#actionList li')).map(function(li){ return li.textContent; });
-      const img = state.chart.toBase64Image('image/png', 1);
+
+      const sourceCanvas = state.chart.canvas;
+      const exportCanvas = document.createElement('canvas');
+      exportCanvas.width = sourceCanvas.width;
+      exportCanvas.height = sourceCanvas.height;
+      const exportCtx = exportCanvas.getContext('2d');
+      exportCtx.fillStyle = '#0d1833';
+      exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+      exportCtx.drawImage(sourceCanvas, 0, 0);
+      const img = exportCanvas.toDataURL('image/png', 1.0);
+
       const popup = window.open('', '_blank');
       if (!popup) {
         alert('Please allow popups to export PDF.');
         return;
       }
       let html = '<!DOCTYPE html><html><head><title>' + title + '</title><style>';
-      html += 'body{font-family:Arial,sans-serif;padding:24px;color:#111}h1{margin:0 0 8px;font-size:24px}h2{font-size:16px;margin:18px 0 8px}p{margin:0 0 10px;color:#444;line-height:1.5}img{max-width:100%;border:1px solid #ddd;border-radius:8px}ul{margin-top:6px;line-height:1.6}';
+      html += 'body{font-family:Arial,sans-serif;padding:24px;color:#111;background:#ffffff}';
+      html += 'h1{margin:0 0 8px;font-size:24px;color:#111}';
+      html += 'h2{font-size:16px;margin:18px 0 8px;color:#111}';
+      html += 'p{margin:0 0 10px;color:#444;line-height:1.5}';
+      html += '.chart-wrap{background:#0d1833;border:1px solid #d9e2ef;border-radius:12px;padding:16px}';
+      html += 'img{max-width:100%;display:block;border-radius:8px}';
+      html += 'ul{margin-top:6px;line-height:1.6;color:#111}';
       html += '</style></head><body>';
       html += '<h1>' + title + '</h1>';
       html += '<p>' + subtitle + '</p>';
       html += '<p><strong>' + aggregation + '</strong></p>';
-      html += '<img src="' + img + '" />';
+      html += '<div class="chart-wrap"><img src="' + img + '" /></div>';
       if (highlights.length) html += '<h2>Highlights</h2><ul>' + highlights.map(function(t){ return '<li>' + t + '</li>'; }).join('') + '</ul>';
       if (rca.length) html += '<h2>What went wrong / RCA</h2><ul>' + rca.map(function(t){ return '<li>' + t + '</li>'; }).join('') + '</ul>';
       if (actions.length) html += '<h2>Action Plan</h2><ul>' + actions.map(function(t){ return '<li>' + t + '</li>'; }).join('') + '</ul>';
@@ -1503,7 +1519,7 @@
       popup.document.write(html);
       popup.document.close();
       popup.focus();
-      popup.print();
+      setTimeout(function(){ popup.print(); }, 250);
     }
 
     function exportPPTPlaceholder() {
