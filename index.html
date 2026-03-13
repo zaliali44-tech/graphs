@@ -71,7 +71,7 @@
     .toggle-group{display:flex;gap:8px;flex-wrap:wrap}
     .toggle-btn{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:var(--text);padding:9px 12px;border-radius:10px;cursor:pointer;font-weight:700;font-size:12px}
     .toggle-btn.active{background:rgba(59,130,246,.18);border-color:rgba(59,130,246,.3)}
-    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:18px}
     .kpi-light{background:#f7f9fc;border:1px solid #c7d2e2;border-radius:16px;padding:16px;color:var(--light-text)}
     .kpi-label{font-size:12px;color:#71809b;margin-bottom:10px;font-weight:700}
     .kpi-value{font-size:22px;font-weight:800;display:flex;align-items:center;gap:8px;color:#14233f}
@@ -161,6 +161,9 @@
         <p>
           Upload a real Excel file with <b>Data_Input</b> and <b>Metric_Settings</b>, detect dynamic KPIs,
           filter by LOB or Channel, compare one dimension, generate chart summaries, and test the full flow with demo data.
+        </p>
+        <p class="inline-note">
+          KPI tiles, metric menu, suggestions, chart titles and summaries now follow the uploaded metrics instead of staying tied to fixed KPI names.
         </p>
       </div>
     </aside>
@@ -1199,7 +1202,7 @@
     }
 
     function renderSnapshots() {
-      const metricCards = state.metrics.slice(0,4).map(metric => {
+      const metricCards = state.metrics.map(metric => {
         const { actualSeries, target, settings } = buildSeries(metric);
         const latest = lastNonNull(actualSeries[0]?.values || []);
         const compare = lastNonNull(target);
