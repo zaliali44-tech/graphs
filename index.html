@@ -399,6 +399,7 @@
                 <div class="chart-title">
                   <h3 id="chartTitle">SLA Trend</h3>
                   <p id="chartSubtitle">Weekly performance trend with actual and target view</p>
+                  <p id="aggregationLabel" class="small-note" style="margin-top:6px;"></p>
                 </div>
                 <div class="toggle-group">
                   <button id="modeWeeklyStudio" class="toggle-btn active" onclick="setViewMode('weekly')">Weekly</button>
@@ -444,8 +445,11 @@
                 <label>Breakdown Mode</label>
                 <select id="breakdownModeSelect">
                   <option value="overall">Overall</option>
-                  <option value="filter">Filter View</option>
-                  <option value="compare">Compare by Dimension</option>
+                  <option value="channel">By Channel</option>
+                  <option value="lob">By LOB</option>
+                  <option value="site">By Site</option>
+                  <option value="team">By Team</option>
+                  <option value="compare">Compare by Selected Dimension</option>
                 </select>
               </div>
 
@@ -478,9 +482,9 @@
                 <label>Summary Blocks</label>
                 <select id="summaryBlocksSelect">
                   <option value="all">Show All</option>
-                  <option value="no-highlights">Hide Highlights</option>
-                  <option value="no-rca">Hide RCA</option>
-                  <option value="no-actions">Hide Action Plan</option>
+                  <option value="highlights-only">Highlights Only</option>
+                  <option value="issues-only">Issues Only</option>
+                  <option value="no-text">No Text</option>
                 </select>
               </div>
 
@@ -555,20 +559,20 @@
               <div class="export-card">
                 <h4>PowerPoint Deck</h4>
                 <p>Includes title slide, executive summary, KPI snapshot, chart slides, summaries, RCA and action plans.</p>
-                <button class="btn btn-primary" onclick="fakeExport('PowerPoint deck')">Export PPT</button>
+                <button class="btn btn-primary" onclick="exportPPTPlaceholder()">Export PPT</button>
               </div>
               <div class="export-card">
                 <h4>PDF Report</h4>
-                <p>Static report for circulation with the same charts, commentary and summary logic.</p>
-                <button class="btn btn-secondary" onclick="fakeExport('PDF report')">Export PDF</button>
+                <p>Exports the current report view with chart and commentary into a printable PDF.</p>
+                <button class="btn btn-secondary" onclick="exportPDF()">Export PDF</button>
               </div>
               <div class="export-card">
-                <h4>Segmented Pack</h4>
-                <p>Useful when users want one slide per channel, one slide per LOB or one slide per site for the same KPI.</p>
-                <button class="btn btn-secondary" onclick="fakeExport('Segmented slide pack')">Export Segmented Pack</button>
+                <h4>PNG Snapshot</h4>
+                <p>Downloads the current chart as an image for quick sharing in slides, chat or email.</p>
+                <button class="btn btn-secondary" onclick="exportPNG()">Export PNG</button>
               </div>
             </div>
-            <p class="small-note">This prototype focuses on upload, validation, weighted overall logic, dynamic KPI support, filtering, comparison mode, charting and summaries. Export buttons are placeholders for the next build step.</p>
+            <p class="small-note">PNG and PDF exports work in this version. PowerPoint remains the next connected export step.</p>
           </div>
         </div>
       </section>
@@ -919,7 +923,7 @@
     }
 
     function getFilteredRows(metric) {
-      let rows = state.rawRows.filter(r => r.Metric === metric);
+      let rows = state.rawRows.filter(function(r){ return r.Metric === metric; });
       const mode = document.getElementById('breakdownModeSelect').value;
       const filters = {
         LOB: document.getElementById('lobFilter').value,
@@ -928,9 +932,10 @@
         Team: document.getElementById('teamFilter').value
       };
 
-      if (mode !== 'compare') {
-        Object.entries(filters).forEach(([field, value]) => {
-          if (value && value !== 'All') rows = rows.filter(r => normalizeString(r[field]) === value);
+      if (['channel','lob','site','team','compare'].indexOf(mode) === -1) {
+        Object.keys(filters).forEach(function(field){
+          const value = filters[field];
+          if (value && value !== 'All') rows = rows.filter(function(r){ return normalizeString(r[field]) === value; });
         });
       }
       return rows;
@@ -955,32 +960,44 @@
       const mode = document.getElementById('breakdownModeSelect').value;
       const compareDimension = document.getElementById('dimensionSelect').value;
       const compareValue = document.getElementById('dimensionValueSelect').value;
-      const rowsSorted = [...rows].sort(sortByPeriod);
-      const periods = [...new Set(rowsSorted.map(r => getPeriodLabel(r)))];
+      const rowsSorted = rows.slice().sort(sortByPeriod);
+      const periods = Array.from(new Set(rowsSorted.map(function(r){ return getPeriodLabel(r); })));
 
       let actualSeries = [];
-      if (mode === 'compare') {
-        const groups = compareValue === 'All'
-          ? [...new Set(rowsSorted.map(r => normalizeString(r[compareDimension])).filter(Boolean))]
-          : [compareValue];
-        actualSeries = groups.map(group => {
-          const groupRows = rowsSorted.filter(r => normalizeString(r[compareDimension]) === group);
-          const values = periods.map(period => {
-            const periodRows = groupRows.filter(r => getPeriodLabel(r) === period);
+      let effectiveMode = mode;
+      let effectiveDimension = compareDimension;
+      if (mode === 'channel') effectiveDimension = 'Channel';
+      if (mode === 'lob') effectiveDimension = 'LOB';
+      if (mode === 'site') effectiveDimension = 'Site';
+      if (mode === 'team') effectiveDimension = 'Team';
+
+      if (['channel','lob','site','team','compare'].indexOf(mode) >= 0) {
+        let groups = [];
+        if (mode === 'compare') {
+          if (compareValue === 'All') groups = Array.from(new Set(rowsSorted.map(function(r){ return normalizeString(r[effectiveDimension]); }).filter(Boolean)));
+          else groups = [compareValue];
+        } else {
+          groups = Array.from(new Set(rowsSorted.map(function(r){ return normalizeString(r[effectiveDimension]); }).filter(Boolean)));
+        }
+
+        actualSeries = groups.map(function(group){
+          const groupRows = rowsSorted.filter(function(r){ return normalizeString(r[effectiveDimension]) === group; });
+          const values = periods.map(function(period){
+            const periodRows = groupRows.filter(function(r){ return getPeriodLabel(r) === period; });
             return aggregateValue(periodRows, 'Actual');
           });
-          return { label: group || compareDimension, values };
+          return { label: group || effectiveDimension, values: values };
         });
       } else {
         actualSeries = [{
           label: 'Actual',
-          values: periods.map(period => aggregateValue(rowsSorted.filter(r => getPeriodLabel(r) === period), 'Actual'))
+          values: periods.map(function(period){ return aggregateValue(rowsSorted.filter(function(r){ return getPeriodLabel(r) === period; }), 'Actual'); })
         }];
       }
 
-      const target = periods.map(period => aggregateValue(rowsSorted.filter(r => getPeriodLabel(r) === period), 'Target'));
-      const forecast = periods.map(period => aggregateValue(rowsSorted.filter(r => getPeriodLabel(r) === period), 'Forecast'));
-      return { periods, actualSeries, target, forecast, settings };
+      const target = periods.map(function(period){ return aggregateValue(rowsSorted.filter(function(r){ return getPeriodLabel(r) === period; }), 'Target'); });
+      const forecast = periods.map(function(period){ return aggregateValue(rowsSorted.filter(function(r){ return getPeriodLabel(r) === period; }), 'Forecast'); });
+      return { periods: periods, actualSeries: actualSeries, target: target, forecast: forecast, settings: settings, effectiveMode: effectiveMode, effectiveDimension: effectiveDimension };
     }
 
     function sortByPeriod(a, b) {
@@ -1002,8 +1019,12 @@
     function buildChartTitle(metric) {
       const mode = document.getElementById('breakdownModeSelect').value;
       const dimension = document.getElementById('dimensionSelect').value;
-      if (mode === 'compare') return `${metric} Comparison by ${dimension}`;
-      return `${metric} Trend`;
+      if (mode === 'compare') return metric + ' Comparison by ' + dimension;
+      if (mode === 'channel') return metric + ' by Channel';
+      if (mode === 'lob') return metric + ' by LOB';
+      if (mode === 'site') return metric + ' by Site';
+      if (mode === 'team') return metric + ' by Team';
+      return metric + ' Trend';
     }
 
     function buildChartSubtitle(metric, settings) {
@@ -1011,7 +1032,8 @@
       const dimension = document.getElementById('dimensionSelect').value;
       const parts = [];
       parts.push(state.currentMode === 'weekly' ? 'Weekly' : 'Monthly');
-      if (mode === 'compare') parts.push(`comparison by ${dimension.toLowerCase()}`);
+      if (mode === 'compare') parts.push('comparison by ' + dimension.toLowerCase());
+      else if (['channel','lob','site','team'].indexOf(mode) >= 0) parts.push('segmented by ' + mode);
       else parts.push('performance trend');
       parts.push(settings.higherIsBetter ? 'higher is better' : 'lower is better');
       return parts.join(' · ');
@@ -1064,34 +1086,44 @@
 
     function renderChart() {
       if (!state.currentMetric) return;
-      const { periods, actualSeries, target, forecast, settings } = buildSeries(state.currentMetric);
+      const built = buildSeries(state.currentMetric);
+      const periods = built.periods;
+      const actualSeries = built.actualSeries;
+      const target = built.target;
+      const forecast = built.forecast;
+      const settings = built.settings;
+      const effectiveMode = built.effectiveMode;
       document.getElementById('chartTitle').textContent = buildChartTitle(state.currentMetric);
       document.getElementById('chartSubtitle').textContent = buildChartSubtitle(state.currentMetric, settings);
       document.getElementById('slideTitleInput').value = buildChartTitle(state.currentMetric);
+      const usesWeights = getFilteredRows(state.currentMetric).some(function(r){ return r.Weight !== null && r.Weight > 0; });
+      document.getElementById('aggregationLabel').textContent = effectiveMode === 'overall' ? 'Aggregation: ' + (usesWeights ? 'Weighted Overall' : 'Simple Average') : 'Aggregation: Segmented View';
 
       const ctx = document.getElementById('mainChart').getContext('2d');
       if (state.chart) state.chart.destroy();
 
       const chosenType = document.getElementById('chartTypeSelect').value;
       const baseType = chosenType === 'Auto Suggested' ? suggestChart(state.currentMetric) : chosenType;
-      const chartType = ['Bar', 'Clustered Bar'].includes(baseType) ? 'bar' : 'line';
+      const chartType = ['Bar', 'Clustered Bar'].indexOf(baseType) >= 0 ? 'bar' : 'line';
 
       const colors = ['#38bdf8','#14b8a6','#8b5cf6','#f59e0b','#ef4444','#22c55e'];
-      const datasets = actualSeries.map((series, index) => ({
-        label: series.label,
-        data: series.values,
-        borderColor: colors[index % colors.length],
-        backgroundColor: chartType === 'bar' ? withAlpha(colors[index % colors.length], 0.6) : withAlpha(colors[index % colors.length], 0.18),
-        pointBackgroundColor: colors[index % colors.length],
-        pointBorderColor: colors[index % colors.length],
-        pointRadius: 4,
-        pointHoverRadius: 5,
-        borderWidth: 3,
-        tension: 0.35,
-        fill: chartType === 'line' && actualSeries.length === 1
-      }));
+      const datasets = actualSeries.map(function(series, index){
+        return {
+          label: series.label,
+          data: series.values,
+          borderColor: colors[index % colors.length],
+          backgroundColor: chartType === 'bar' ? withAlpha(colors[index % colors.length], 0.6) : withAlpha(colors[index % colors.length], 0.18),
+          pointBackgroundColor: colors[index % colors.length],
+          pointBorderColor: colors[index % colors.length],
+          pointRadius: 4,
+          pointHoverRadius: 5,
+          borderWidth: 3,
+          tension: 0.35,
+          fill: chartType === 'line' && actualSeries.length === 1
+        };
+      });
 
-      if (actualSeries.length === 1 && target.some(v => v !== null)) {
+      if (actualSeries.length === 1 && target.some(function(v){ return v !== null; })) {
         datasets.push({
           label: 'Target',
           data: target,
@@ -1108,7 +1140,7 @@
         });
       }
 
-      if (actualSeries.length === 1 && forecast.some(v => v !== null)) {
+      if (actualSeries.length === 1 && forecast.some(function(v){ return v !== null; })) {
         datasets.push({
           label: 'Forecast',
           data: forecast,
@@ -1128,7 +1160,7 @@
 
       state.chart = new Chart(ctx, {
         type: chartType,
-        data: { labels: periods, datasets },
+        data: { labels: periods, datasets: datasets },
         plugins: [arrowPlugin],
         options: {
           maintainAspectRatio: false,
@@ -1159,7 +1191,7 @@
               ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
               grid: { color: 'rgba(255,255,255,.08)' },
               border: { display: true, color: 'rgba(255,255,255,.28)', width: 2 },
-              title: { display: true, text: settings.unit ? `Metric Value (${settings.unit})` : 'Metric Value', color: '#eef4ff', font: { size: 13, weight: '800' } }
+              title: { display: true, text: settings.unit ? 'Metric Value (' + settings.unit + ')' : 'Metric Value', color: '#eef4ff', font: { size: 13, weight: '800' } }
             }
           }
         }
@@ -1242,41 +1274,39 @@
       const highlights = [];
       const rca = [];
       let actions = [];
-      const mainSeries = actualSeries[0]?.values || [];
+      const mainSeries = actualSeries[0] ? actualSeries[0].values : [];
       const latest = lastNonNull(mainSeries);
       const previous = previousNonNull(mainSeries);
       const targetLatest = lastNonNull(target);
-      const usingWeights = getFilteredRows(state.currentMetric).some(r => r.Weight !== null && r.Weight > 0);
+      const usingWeights = getFilteredRows(state.currentMetric).some(function(r){ return r.Weight !== null && r.Weight > 0; });
 
       if (actualSeries.length > 1) {
-        highlights.push(`Comparison view is showing ${actualSeries.length} series for the selected dimension.`);
+        highlights.push('Comparison view is showing ' + actualSeries.length + ' series for the selected dimension.');
         const bestSeries = actualSeries
-          .map(s => ({ label: s.label, latest: lastNonNull(s.values) }))
-          .filter(s => s.latest !== null)
-          .sort((a,b) => settings.higherIsBetter ? b.latest - a.latest : a.latest - b.latest)[0];
-        if (bestSeries) highlights.push(`${bestSeries.label} is currently the strongest visible segment.`);
+          .map(function(s){ return { label: s.label, latest: lastNonNull(s.values) }; })
+          .filter(function(s){ return s.latest !== null; })
+          .sort(function(a,b){ return settings.higherIsBetter ? b.latest - a.latest : a.latest - b.latest; })[0];
+        if (bestSeries) highlights.push(bestSeries.label + ' is currently the strongest visible segment.');
         rca.push('Differences between segments suggest that one overall graph may hide team or channel-level variation.');
-        actions = ['Use segmented slides when leadership needs a separate view by channel or LOB.', 'Review the lowest-performing segment first before assigning broad actions.', 'Keep compare mode only when the slide needs cross-segment storytelling.'];
+        actions = ['Use segmented slides when leadership needs a separate view by channel or LOB.', 'Review the lowest-performing segment first before assigning broad actions.', 'Keep comparison mode only when the slide needs cross-segment storytelling.'];
       } else {
         if (latest !== null && previous !== null) {
           const diff = round2(latest - previous);
           const improved = settings.higherIsBetter ? diff >= 0 : diff <= 0;
-          highlights.push(`${state.currentMetric} ${improved ? 'improved' : 'declined'} by ${Math.abs(diff)}${settings.unit || ''} versus the prior visible period.`);
+          highlights.push(state.currentMetric + ' ' + (improved ? 'improved' : 'declined') + ' by ' + Math.abs(diff) + (settings.unit || '') + ' versus the prior visible period.');
         }
         if (targetLatest !== null && latest !== null) {
           const onTrack = settings.higherIsBetter ? latest >= targetLatest : latest <= targetLatest;
-          highlights.push(`${state.currentMetric} is currently ${onTrack ? 'meeting' : 'missing'} target.`);
-          if (!onTrack) rca.push(`Latest result is outside target and should be reviewed with staffing, process or demand context.`);
+          highlights.push(state.currentMetric + ' is currently ' + (onTrack ? 'meeting' : 'missing') + ' target.');
+          if (!onTrack) rca.push('Latest result is outside target and should be reviewed with staffing, process or demand context.');
         }
-        if (usingWeights) highlights.push('Overall performance and target are being calculated using weighted aggregation from the uploaded data.');
-        else highlights.push('Overall performance is using a simple average because no Weight column values were found.');
-        if (target.every(v => v === null)) {
-          rca.push('No target values are available, so the graph uses trend-based interpretation only.');
-        }
-        if (mainSeries.filter(v => v !== null).length > 2) {
-          const min = Math.min(...mainSeries.filter(v => v !== null));
-          const max = Math.max(...mainSeries.filter(v => v !== null));
-          highlights.push(`Observed range across the visible period is ${min}${settings.unit || ''} to ${max}${settings.unit || ''}.`);
+        highlights.push(usingWeights ? 'Overall performance and target are being calculated using weighted aggregation from the uploaded data.' : 'Overall performance is using a simple average because no Weight column values were found.');
+        if (target.every(function(v){ return v === null; })) rca.push('No target values are available, so the graph uses trend-based interpretation only.');
+        if (mainSeries.filter(function(v){ return v !== null; }).length > 2) {
+          const nums = mainSeries.filter(function(v){ return v !== null; });
+          const min = Math.min.apply(null, nums);
+          const max = Math.max.apply(null, nums);
+          highlights.push('Observed range across the visible period is ' + min + (settings.unit || '') + ' to ' + max + (settings.unit || '') + '.');
         }
         actions = generateMetricSpecificActions(state.currentMetric, settings, latest, targetLatest);
       }
@@ -1285,9 +1315,20 @@
         highlights.push('The current chart is filtered, so insights apply only to the visible selection.');
       }
 
-      setList('highlightsList', summaryMode === 'no-highlights' ? [] : dedupe(highlights).slice(0, 3));
-      setList('rcaList', summaryMode === 'no-rca' ? [] : dedupe(rca.length ? rca : ['No major RCA issue detected in the visible view.']).slice(0, 3));
-      setList('actionList', summaryMode === 'no-actions' ? [] : dedupe(actions).slice(0, 3));
+      let showHighlights = true;
+      let showRca = true;
+      let showActions = true;
+      if (summaryMode === 'highlights-only') { showRca = false; showActions = false; }
+      if (summaryMode === 'issues-only') { showHighlights = false; }
+      if (summaryMode === 'no-text') { showHighlights = false; showRca = false; showActions = false; }
+
+      document.getElementById('highlightsList').closest('.insight-box').style.display = showHighlights ? '' : 'none';
+      document.getElementById('rcaList').closest('.insight-box').style.display = showRca ? '' : 'none';
+      document.getElementById('actionList').closest('.insight-box').style.display = showActions ? '' : 'none';
+
+      setList('highlightsList', showHighlights ? dedupe(highlights).slice(0, 3) : []);
+      setList('rcaList', showRca ? dedupe(rca.length ? rca : ['No major RCA issue detected in the visible view.']).slice(0, 3) : []);
+      setList('actionList', showActions ? dedupe(actions).slice(0, 3) : []);
     }
 
     function renderSnapshots() {
@@ -1408,12 +1449,12 @@
 
     function syncStudioControls() {
       document.getElementById('metricSelect').value = state.currentMetric;
-      document.getElementById('breakdownModeSelect').value = document.getElementById('buildModeSelect').value;
+      const buildModeValue = document.getElementById('buildModeSelect').value;
+      if (['overall','compare'].indexOf(buildModeValue) >= 0) document.getElementById('breakdownModeSelect').value = buildModeValue;
     }
 
     function handleControlChange() {
       state.currentMetric = document.getElementById('metricSelect').value;
-      document.getElementById('breakdownModeSelect').value = document.getElementById('buildModeSelect').value;
       fillDimensionValueSelect();
       renderMetricList();
       renderChart();
@@ -1422,7 +1463,51 @@
     }
 
     function fakeExport(name) {
-      alert(`${name} export is the next build step. The current prototype already tests upload, validation, weighted overall logic, dynamic KPI support, filtering, comparison mode, charting and summaries.`);
+      alert(name + ' export is the next build step.');
+    }
+
+    function exportPNG() {
+      if (!state.chart) return;
+      const link = document.createElement('a');
+      const title = buildChartTitle(state.currentMetric).split(' ').join('_');
+      link.href = state.chart.toBase64Image('image/png', 1);
+      link.download = title + '.png';
+      link.click();
+    }
+
+    function exportPDF() {
+      if (!state.chart) return;
+      const title = buildChartTitle(state.currentMetric);
+      const subtitle = document.getElementById('chartSubtitle').textContent;
+      const aggregation = document.getElementById('aggregationLabel').textContent;
+      const highlights = Array.from(document.querySelectorAll('#highlightsList li')).map(function(li){ return li.textContent; });
+      const rca = Array.from(document.querySelectorAll('#rcaList li')).map(function(li){ return li.textContent; });
+      const actions = Array.from(document.querySelectorAll('#actionList li')).map(function(li){ return li.textContent; });
+      const img = state.chart.toBase64Image('image/png', 1);
+      const popup = window.open('', '_blank');
+      if (!popup) {
+        alert('Please allow popups to export PDF.');
+        return;
+      }
+      let html = '<!DOCTYPE html><html><head><title>' + title + '</title><style>';
+      html += 'body{font-family:Arial,sans-serif;padding:24px;color:#111}h1{margin:0 0 8px;font-size:24px}h2{font-size:16px;margin:18px 0 8px}p{margin:0 0 10px;color:#444;line-height:1.5}img{max-width:100%;border:1px solid #ddd;border-radius:8px}ul{margin-top:6px;line-height:1.6}';
+      html += '</style></head><body>';
+      html += '<h1>' + title + '</h1>';
+      html += '<p>' + subtitle + '</p>';
+      html += '<p><strong>' + aggregation + '</strong></p>';
+      html += '<img src="' + img + '" />';
+      if (highlights.length) html += '<h2>Highlights</h2><ul>' + highlights.map(function(t){ return '<li>' + t + '</li>'; }).join('') + '</ul>';
+      if (rca.length) html += '<h2>What went wrong / RCA</h2><ul>' + rca.map(function(t){ return '<li>' + t + '</li>'; }).join('') + '</ul>';
+      if (actions.length) html += '<h2>Action Plan</h2><ul>' + actions.map(function(t){ return '<li>' + t + '</li>'; }).join('') + '</ul>';
+      html += '</body></html>';
+      popup.document.write(html);
+      popup.document.close();
+      popup.focus();
+      popup.print();
+    }
+
+    function exportPPTPlaceholder() {
+      alert('PowerPoint export is still the next connected step. PNG and PDF are enabled now.');
     }
 
     function downloadTemplate() {
