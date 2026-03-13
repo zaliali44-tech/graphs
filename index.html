@@ -2222,8 +2222,8 @@
       return canvas.toDataURL('image/png', 1.0);
     }
 
-    function addSimpleTextBox(slide, title, items, x, y, w, h, shapeType) {
-      slide.addShape(shapeType.rect, {
+    function addSimpleTextBox(slide, title, items, x, y, w, h) {
+      slide.addShape('rect', {
         x, y, w, h,
         line: { color: '243452', pt: 1 },
         fill: { color: '162442' }
@@ -2292,7 +2292,6 @@
 
       try {
         const pptx = new PptxClass();
-        const shapeType = PptxClass.ShapeType;
 
         pptx.layout = 'LAYOUT_WIDE';
         pptx.author = 'Stratos Reporting Studio';
@@ -2333,9 +2332,9 @@
           fontSize: 11, color: 'DCE7FA', margin: 0.04
         });
 
-        addSimpleTextBox(slide, 'Key Achievements', achievements, 0.6, 2.1, 3.8, 2.1, shapeType);
-        addSimpleTextBox(slide, 'Key Risks', risks, 4.7, 2.1, 3.8, 2.1, shapeType);
-        addSimpleTextBox(slide, 'Priority Actions', actions, 8.8, 2.1, 3.8, 2.1, shapeType);
+        addSimpleTextBox(slide, 'Key Achievements', achievements, 0.6, 2.1, 3.8, 2.1);
+        addSimpleTextBox(slide, 'Key Risks', risks, 4.7, 2.1, 3.8, 2.1);
+        addSimpleTextBox(slide, 'Priority Actions', actions, 8.8, 2.1, 3.8, 2.1);
 
         slide = pptx.addSlide();
         slide.background = { color: '0D1833' };
@@ -2362,7 +2361,7 @@
           const x = 0.6 + (col * 6.1);
           const y = 1.1 + (row * 1.3);
 
-          slide.addShape(shapeType.rect, {
+          slide.addShape('rect', {
             x, y, w: 5.7, h: 1.0,
             line: { color: '243452', pt: 1 },
             fill: { color: '162442' }
@@ -2425,9 +2424,9 @@
             x: 0.6, y: 1.1, w: 8.0, h: 3.7
           });
 
-          addSimpleTextBox(slide, 'Highlights', highlights, 0.6, 5.1, 3.8, 1.8, shapeType);
-          addSimpleTextBox(slide, 'What went wrong / RCA', rca, 4.7, 5.1, 3.8, 1.8, shapeType);
-          addSimpleTextBox(slide, 'Action Plan', action, 8.8, 5.1, 3.8, 1.8, shapeType);
+          addSimpleTextBox(slide, 'Highlights', highlights, 0.6, 5.1, 3.8, 1.8);
+          addSimpleTextBox(slide, 'What went wrong / RCA', rca, 4.7, 5.1, 3.8, 1.8);
+          addSimpleTextBox(slide, 'Action Plan', action, 8.8, 5.1, 3.8, 1.8);
         }
 
         state.currentMetric = originalMetric;
