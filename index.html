@@ -1153,7 +1153,7 @@
                 <button class="btn btn-secondary" id="exportPngBtn" type="button">Export PNG</button>
               </div>
             </div>
-            <p class="small-note">PNG and PDF exports work in this version. PowerPoint export is enabled with image-based charts for layout consistency.</p>
+            <p class="small-note">PNG and PDF exports work in this version. PowerPoint export now uses high-resolution image-based charts for stable download behavior.</p>
           </div>
         </div>
       </section>
@@ -1812,6 +1812,7 @@
         data: { labels: periods, datasets },
         plugins: [arrowPlugin],
         options: {
+          animation: false,
           maintainAspectRatio: false,
           responsive: true,
           layout: { padding: { top: 28, right: 12, bottom: 8, left: 8 } },
@@ -2197,8 +2198,49 @@
       setTimeout(() => popup.print(), 250);
     }
 
-    function exportPPT() {
-      if (typeof PptxGenJS === 'undefined') {
+    function getPptxConstructor() {
+      if (typeof PptxGenJS !== 'undefined') return PptxGenJS;
+      if (typeof window !== 'undefined' && typeof window.PptxGenJS !== 'undefined') return window.PptxGenJS;
+      return null;
+    }
+
+    function sanitizeFileName(name) {
+      return String(name || 'Stratos_WBR_Report').replace(/[\\/:*?"<>|]+/g, '_');
+    }
+
+    function buildChartImageForExport(chartInstance, backgroundColor = '#0d1833', scale = 2) {
+      const sourceCanvas = chartInstance.canvas;
+      const exportCanvas = document.createElement('canvas');
+      exportCanvas.width = sourceCanvas.width * scale;
+      exportCanvas.height = sourceCanvas.height * scale;
+
+      const ctx = exportCanvas.getContext('2d');
+      ctx.scale(scale, scale);
+      ctx.fillStyle = backgroundColor;
+      ctx.fillRect(0, 0, sourceCanvas.width, sourceCanvas.height);
+      ctx.drawImage(sourceCanvas, 0, 0);
+
+      return exportCanvas.toDataURL('image/png', 1.0);
+    }
+
+    function nextPaint() {
+      return new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    }
+
+    async function setMetricForExport(metric) {
+      state.currentMetric = metric;
+      document.getElementById('metricSelect').value = metric;
+      renderMetricList();
+      renderChart();
+      renderSnapshots();
+      renderExecutiveSummary();
+      await nextPaint();
+    }
+
+    async function exportPPT() {
+      const PptxClass = getPptxConstructor();
+
+      if (!PptxClass) {
         alert('PowerPoint library did not load. Please refresh and try again.');
         return;
       }
@@ -2208,45 +2250,60 @@
         return;
       }
 
-      const pptx = new PptxGenJS();
-      pptx.layout = 'LAYOUT_WIDE';
-      pptx.author = 'OpenAI';
-      pptx.company = 'Stratos Reporting Studio';
-      pptx.subject = 'Operational Performance Review';
-      pptx.title = 'Operational Performance Review';
-      pptx.lang = 'en-US';
-      pptx.theme = {
-        headFontFace: 'Aptos Display',
-        bodyFontFace: 'Aptos',
-        lang: 'en-US'
+      const exportBtn = document.getElementById('exportPptBtn');
+      const originalBtnText = exportBtn.textContent;
+      exportBtn.disabled = true;
+      exportBtn.textContent = 'Exporting...';
+
+      const originalState = {
+        currentMetric: state.currentMetric,
+        breakdownMode: document.getElementById('breakdownModeSelect').value,
+        summaryMode: document.getElementById('summaryBlocksSelect').value,
+        metricSelect: document.getElementById('metricSelect').value
       };
 
-      const reportTitle = 'Operational Performance Review';
-      const periodLabel = state.currentMode === 'weekly' ? 'Weekly View' : 'Monthly View';
-      const filtersText = buildAppliedFiltersText();
+      try {
+        const pptx = new PptxClass();
+        pptx.layout = 'LAYOUT_WIDE';
+        pptx.author = 'OpenAI';
+        pptx.company = 'Stratos Reporting Studio';
+        pptx.subject = 'Operational Performance Review';
+        pptx.title = 'Operational Performance Review';
+        pptx.lang = 'en-US';
 
-      addPptTitleSlide(pptx, reportTitle, periodLabel, filtersText);
-      addPptExecutiveSummarySlide(pptx, reportTitle, periodLabel, filtersText);
-      addPptSnapshotSlide(pptx);
+        const reportTitle = 'Operational Performance Review';
+        const periodLabel = state.currentMode === 'weekly' ? 'Weekly View' : 'Monthly View';
+        const filtersText = buildAppliedFiltersText();
 
-      const originalMetric = state.currentMetric;
-      const originalBreakdown = document.getElementById('breakdownModeSelect').value;
-      const originalSummary = document.getElementById('summaryBlocksSelect').value;
+        addPptTitleSlide(pptx, reportTitle, periodLabel, filtersText);
 
-      state.metrics.forEach(metric => {
-        addPptMetricSlide(pptx, metric);
-      });
+        await setMetricForExport(originalState.currentMetric);
+        addPptExecutiveSummarySlide(pptx, reportTitle, periodLabel, filtersText);
+        addPptSnapshotSlide(pptx);
 
-      state.currentMetric = originalMetric;
-      document.getElementById('breakdownModeSelect').value = originalBreakdown;
-      document.getElementById('summaryBlocksSelect').value = originalSummary;
-      renderMetricList();
-      renderChart();
-      renderSnapshots();
-      renderExecutiveSummary();
+        for (const metric of state.metrics) {
+          await setMetricForExport(metric);
+          addPptMetricSlide(pptx, metric);
+        }
 
-      const fileName = 'Stratos_WBR_Report_' + new Date().toISOString().slice(0,10) + '.pptx';
-      return pptx.writeFile({ fileName });
+        state.currentMetric = originalState.currentMetric;
+        document.getElementById('metricSelect').value = originalState.metricSelect;
+        document.getElementById('breakdownModeSelect').value = originalState.breakdownMode;
+        document.getElementById('summaryBlocksSelect').value = originalState.summaryMode;
+        renderMetricList();
+        renderChart();
+        renderSnapshots();
+        renderExecutiveSummary();
+
+        const fileName = sanitizeFileName('Stratos_WBR_Report_' + new Date().toISOString().slice(0,10) + '.pptx');
+        await pptx.writeFile({ fileName });
+      } catch (err) {
+        console.error('PPT export failed:', err);
+        alert('PPT export failed. Please check browser console for details.');
+      } finally {
+        exportBtn.disabled = false;
+        exportBtn.textContent = originalBtnText;
+      }
     }
 
     function addPptTitleSlide(pptx, title, periodLabel, filtersText) {
@@ -2273,7 +2330,7 @@
         color: 'AEBBD7'
       });
 
-      slide.addShape(PptxGenJS.ShapeType.rect, {
+      slide.addShape(PptxClassShapeType().rect, {
         x: 0.6,
         y: 4.4,
         w: 4.0,
@@ -2352,7 +2409,7 @@
         const x = 0.6 + (col * 6.1);
         const y = 1.3 + (row * 1.35);
 
-        slide.addShape(PptxGenJS.ShapeType.roundRect, {
+        slide.addShape(PptxClassShapeType().roundRect, {
           x, y, w: 5.7, h: 1.1,
           rectRadius: 0.08,
           line: { color: '243452', transparency: 0 },
@@ -2377,11 +2434,6 @@
     }
 
     function addPptMetricSlide(pptx, metric) {
-      const originalMetric = state.currentMetric;
-      state.currentMetric = metric;
-      renderMetricList();
-      renderChart();
-
       const slide = pptx.addSlide();
       applyPptDarkTemplate(slide, buildChartTitle(metric), document.getElementById('chartSubtitle').textContent);
 
@@ -2390,15 +2442,7 @@
         fontSize: 9, color: 'AEBBD7', bold: true
       });
 
-      const chartCanvas = document.createElement('canvas');
-      chartCanvas.width = state.chart.canvas.width;
-      chartCanvas.height = state.chart.canvas.height;
-      const chartCtx = chartCanvas.getContext('2d');
-      chartCtx.fillStyle = '#0d1833';
-      chartCtx.fillRect(0, 0, chartCanvas.width, chartCanvas.height);
-      chartCtx.drawImage(state.chart.canvas, 0, 0);
-
-      const chartImg = chartCanvas.toDataURL('image/png', 1.0);
+      const chartImg = buildChartImageForExport(state.chart, '#0d1833', 2);
       slide.addImage({ data: chartImg, x: 0.55, y: 1.05, w: 8.1, h: 3.7 });
 
       const highlights = Array.from(document.querySelectorAll('#highlightsList li')).map(li => li.textContent);
@@ -2408,8 +2452,11 @@
       addPptBulletsBox(slide, 'Highlights', highlights, 0.6, 5.0, 3.9, 1.75);
       addPptBulletsBox(slide, 'What went wrong / RCA', rca, 4.8, 5.0, 3.9, 1.75);
       addPptBulletsBox(slide, 'Action Plan', actions, 9.0, 5.0, 3.3, 1.75);
+    }
 
-      state.currentMetric = originalMetric;
+    function PptxClassShapeType() {
+      const PptxClass = getPptxConstructor();
+      return PptxClass.ShapeType;
     }
 
     function applyPptDarkTemplate(slide, title, subtitle) {
@@ -2431,7 +2478,7 @@
     }
 
     function addPptBulletsBox(slide, title, items, x, y, w, h) {
-      slide.addShape(PptxGenJS.ShapeType.roundRect, {
+      slide.addShape(PptxClassShapeType().roundRect, {
         x, y, w, h,
         rectRadius: 0.08,
         line: { color: '243452', transparency: 0 },
