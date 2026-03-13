@@ -1078,6 +1078,12 @@
                 </select>
               </div>
 
+              <div class="field" style="margin-top:12px;">
+                <label>Client Logo (Optional)</label>
+                <input type="file" id="clientLogoInput" accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml" />
+              </div>
+
+              <p class="small-note">Theme selection controls PPT styling. Client logo is optional and will appear on title and content slides when uploaded.</p>
               <p class="small-note">Weighted overall logic uses the <b>Weight</b> column when present. Without it, the dashboard falls back to a simple average.</p>
             </div>
           </div>
@@ -1168,7 +1174,8 @@
       dimensions: ['LOB', 'Channel', 'Site', 'Team'],
       currentMode: 'weekly',
       currentMetric: null,
-      chart: null
+      chart: null,
+      clientLogoData: null
     };
 
     const demoWorkbook = buildDemoWorkbook();
@@ -1194,14 +1201,14 @@
         ['2026-02-16','Week 7','SLA','Support','Email','KL','Team A',94,85,91,8900],
         ['2026-02-23','Week 8','SLA','Support','Email','KL','Team A',95,85,92,9300],
 
-        ['2026-01-05','Week 1','AHT','Support','Voice','KL','Team A',560,540,'',12100],
-        ['2026-01-12','Week 2','AHT','Support','Voice','KL','Team A',552,540,'',12420],
-        ['2026-01-19','Week 3','AHT','Support','Voice','KL','Team A',548,540,'',11980],
-        ['2026-01-26','Week 4','AHT','Support','Voice','KL','Team A',541,540,'',12610],
-        ['2026-02-02','Week 5','AHT','Support','Voice','KL','Team A',548,540,'',12880],
-        ['2026-02-09','Week 6','AHT','Support','Voice','KL','Team A',534,540,'',12540],
-        ['2026-02-16','Week 7','AHT','Support','Voice','KL','Team A',527,540,'',12720],
-        ['2026-02-23','Week 8','AHT','Support','Voice','KL','Team A',521,540,'',12920],
+        ['2026-01-05','Week 1','AHT','Support','Voice','KL','Team A',560,570,'',12100],
+        ['2026-01-12','Week 2','AHT','Support','Voice','KL','Team A',570,570,'',12420],
+        ['2026-01-19','Week 3','AHT','Support','Voice','KL','Team A',573,570,'',11980],
+        ['2026-01-26','Week 4','AHT','Support','Voice','KL','Team A',566,570,'',12610],
+        ['2026-02-02','Week 5','AHT','Support','Voice','KL','Team A',575,570,'',12880],
+        ['2026-02-09','Week 6','AHT','Support','Voice','KL','Team A',559,570,'',12540],
+        ['2026-02-16','Week 7','AHT','Support','Voice','KL','Team A',552,570,'',12720],
+        ['2026-02-23','Week 8','AHT','Support','Voice','KL','Team A',546,570,'',12920],
 
         ['2026-01-05','Week 1','QA','Support','Chat','KL','Team A',94,93,'',2100],
         ['2026-01-12','Week 2','QA','Support','Chat','KL','Team A',95,93,'',2300],
@@ -1228,7 +1235,25 @@
         ['2026-02-02','Week 5','Response Rate','Support','Email','KL','Team A',93,89,'',9000],
         ['2026-02-09','Week 6','Response Rate','Support','Email','KL','Team A',92,89,'',9100],
         ['2026-02-16','Week 7','Response Rate','Support','Email','KL','Team A',94,89,'',8900],
-        ['2026-02-23','Week 8','Response Rate','Support','Email','KL','Team A',93,89,'',9300]
+        ['2026-02-23','Week 8','Response Rate','Support','Email','KL','Team A',93,89,'',9300],
+
+        ['2026-01-05','Week 1','Resolution Rate','Support','Chat','KL','Team A',87,85,'',3000],
+        ['2026-01-12','Week 2','Resolution Rate','Support','Chat','KL','Team A',88,85,'',3100],
+        ['2026-01-19','Week 3','Resolution Rate','Support','Chat','KL','Team A',86,85,'',3200],
+        ['2026-01-26','Week 4','Resolution Rate','Support','Chat','KL','Team A',89,85,'',3250],
+        ['2026-02-02','Week 5','Resolution Rate','Support','Chat','KL','Team A',88,85,'',3300],
+        ['2026-02-09','Week 6','Resolution Rate','Support','Chat','KL','Team A',90,85,'',3400],
+        ['2026-02-16','Week 7','Resolution Rate','Support','Chat','KL','Team A',91,85,'',3450],
+        ['2026-02-23','Week 8','Resolution Rate','Support','Chat','KL','Team A',90,85,'',3500],
+
+        ['2026-01-05','Week 1','Occupancy','Support','Voice','KL','Team A',82,80,'',12100],
+        ['2026-01-12','Week 2','Occupancy','Support','Voice','KL','Team A',81,80,'',12420],
+        ['2026-01-19','Week 3','Occupancy','Support','Voice','KL','Team A',83,80,'',11980],
+        ['2026-01-26','Week 4','Occupancy','Support','Voice','KL','Team A',84,80,'',12610],
+        ['2026-02-02','Week 5','Occupancy','Support','Voice','KL','Team A',82,80,'',12880],
+        ['2026-02-09','Week 6','Occupancy','Support','Voice','KL','Team A',85,80,'',12540],
+        ['2026-02-16','Week 7','Occupancy','Support','Voice','KL','Team A',84,80,'',12720],
+        ['2026-02-23','Week 8','Occupancy','Support','Voice','KL','Team A',83,80,'',12920]
       ];
 
       const settings = [
@@ -1237,7 +1262,9 @@
         ['AHT','Efficiency','Sec','No','Line','Yes'],
         ['QA','Effectiveness','%','Yes','Bar','Yes'],
         ['Volume','Demand','','Yes','Line','Yes'],
-        ['Response Rate','Service','%','Yes','Line','Yes']
+        ['Response Rate','Service','%','Yes','Line','Yes'],
+        ['Resolution Rate','Service','%','Yes','Line','Yes'],
+        ['Occupancy','Efficiency','%','Yes','Bar','Yes']
       ];
 
       return { data, settings };
@@ -2204,6 +2231,99 @@
       return null;
     }
 
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function handleClientLogoUpload(file) {
+      if (!file) {
+        state.clientLogoData = null;
+        return;
+      }
+      try {
+        state.clientLogoData = await readFileAsDataURL(file);
+      } catch (err) {
+        console.error('Logo upload failed:', err);
+        alert('Could not read the selected logo file.');
+      }
+    }
+
+    function getSelectedPptTheme() {
+      const selected = document.getElementById('presentationThemeSelect').value;
+
+      if (selected === 'Executive Blue') {
+        return {
+          name: 'Executive Blue',
+          bg: 'F4F8FC',
+          panel: 'FFFFFF',
+          panelAlt: 'EEF4FB',
+          header: '123A6D',
+          title: '0D1B34',
+          text: '20304D',
+          muted: '5D6B84',
+          accent: '2563EB',
+          accent2: '38BDF8',
+          success: '16A34A',
+          danger: 'DC2626',
+          warning: 'D97706',
+          border: 'D6E1F0',
+          kickerFill: 'E8F1FD',
+          kickerText: '1D4ED8',
+          footer: '6B7A94',
+          chartFrame: 'FFFFFF'
+        };
+      }
+
+      if (selected === 'Client Light') {
+        return {
+          name: 'Client Light',
+          bg: 'FFFFFF',
+          panel: 'FFFFFF',
+          panelAlt: 'F8FAFC',
+          header: 'E2E8F0',
+          title: '0F172A',
+          text: '1E293B',
+          muted: '64748B',
+          accent: '0EA5E9',
+          accent2: '14B8A6',
+          success: '16A34A',
+          danger: 'DC2626',
+          warning: 'CA8A04',
+          border: 'CBD5E1',
+          kickerFill: 'ECFEFF',
+          kickerText: '0F766E',
+          footer: '64748B',
+          chartFrame: 'F8FAFC'
+        };
+      }
+
+      return {
+        name: 'Stratos Dark',
+        bg: '0D1833',
+        panel: '162442',
+        panelAlt: '14223F',
+        header: '081124',
+        title: 'FFFFFF',
+        text: 'E8F2FF',
+        muted: 'AEBBD7',
+        accent: '38BDF8',
+        accent2: '8B5CF6',
+        success: '22C55E',
+        danger: 'EF4444',
+        warning: 'F59E0B',
+        border: '243452',
+        kickerFill: '102345',
+        kickerText: '8ADFFF',
+        footer: '8CA0C4',
+        chartFrame: '12203B'
+      };
+    }
+
     function getChartImageForPpt() {
       if (!state.chart) return '';
 
@@ -2222,14 +2342,14 @@
       return canvas.toDataURL('image/png', 1.0);
     }
 
-    function pptAddHeader(slide, title, subtitle) {
+    function pptAddHeader(slide, title, subtitle, theme) {
       slide.addShape('rect', {
         x: 0,
         y: 0,
         w: 13.33,
         h: 0.75,
-        line: { color: '081124', transparency: 100 },
-        fill: { color: '081124' }
+        line: { color: theme.header, transparency: 100 },
+        fill: { color: theme.header }
       });
 
       slide.addShape('rect', {
@@ -2237,8 +2357,8 @@
         y: 0.75,
         w: 13.33,
         h: 0.03,
-        line: { color: '38BDF8', transparency: 100 },
-        fill: { color: '38BDF8' }
+        line: { color: theme.accent, transparency: 100 },
+        fill: { color: theme.accent }
       });
 
       slide.addText(title, {
@@ -2248,7 +2368,7 @@
         h: 0.24,
         fontSize: 22,
         bold: true,
-        color: 'FFFFFF'
+        color: theme.title
       });
 
       slide.addText(subtitle || '', {
@@ -2257,18 +2377,48 @@
         w: 7.5,
         h: 0.16,
         fontSize: 9.5,
-        color: 'AEBBD7'
+        color: theme.muted
       });
+
+      if (state.clientLogoData) {
+        slide.addImage({
+          data: state.clientLogoData,
+          x: 11.4,
+          y: 0.12,
+          w: 1.15,
+          h: 0.42,
+          contain: true
+        });
+      } else {
+        slide.addShape('rect', {
+          x: 11.1,
+          y: 0.12,
+          w: 1.45,
+          h: 0.42,
+          line: { color: theme.border, pt: 1, dash: 'dash' },
+          fill: { color: theme.panel }
+        });
+
+        slide.addText('Client Logo', {
+          x: 11.16,
+          y: 0.23,
+          w: 1.3,
+          h: 0.1,
+          fontSize: 7.5,
+          color: theme.muted,
+          align: 'center'
+        });
+      }
     }
 
-    function pptAddFooter(slide, leftText = 'Stratos Reporting Studio', rightText = 'Confidential') {
+    function pptAddFooter(slide, theme, leftText = 'Stratos Reporting Studio', rightText = 'Confidential') {
       slide.addShape('rect', {
         x: 0,
         y: 7.15,
         w: 13.33,
         h: 0.12,
-        line: { color: '0A1329', transparency: 100 },
-        fill: { color: '0A1329' }
+        line: { color: theme.header, transparency: 100 },
+        fill: { color: theme.header }
       });
 
       slide.addText(leftText, {
@@ -2277,7 +2427,7 @@
         w: 3.5,
         h: 0.12,
         fontSize: 8,
-        color: '8CA0C4'
+        color: theme.footer
       });
 
       slide.addText(rightText, {
@@ -2286,16 +2436,16 @@
         w: 2.4,
         h: 0.12,
         fontSize: 8,
-        color: '8CA0C4',
+        color: theme.footer,
         align: 'right'
       });
     }
 
-    function pptAddKicker(slide, text, x, y, w) {
+    function pptAddKicker(slide, text, x, y, w, theme) {
       slide.addShape('rect', {
         x, y, w, h: 0.24,
-        line: { color: '1E355B', transparency: 100 },
-        fill: { color: '102345' }
+        line: { color: theme.kickerFill, transparency: 100 },
+        fill: { color: theme.kickerFill }
       });
 
       slide.addText(text, {
@@ -2304,17 +2454,17 @@
         w: w - 0.16,
         h: 0.12,
         fontSize: 8.5,
-        color: '8ADFFF',
+        color: theme.kickerText,
         bold: true,
         align: 'center'
       });
     }
 
-    function addSimpleTextBox(slide, title, items, x, y, w, h, accentColor = '38BDF8', titleColor = 'FFFFFF') {
+    function addSimpleTextBox(slide, title, items, x, y, w, h, accentColor, theme) {
       slide.addShape('rect', {
         x, y, w, h,
-        line: { color: '243452', pt: 1 },
-        fill: { color: '162442' }
+        line: { color: theme.border, pt: 1 },
+        fill: { color: theme.panel }
       });
 
       slide.addShape('rect', {
@@ -2330,7 +2480,7 @@
         h: 0.2,
         fontSize: 11,
         bold: true,
-        color: titleColor
+        color: theme.title
       });
 
       const safeItems = (items && items.length) ? items : ['No major issue detected in the visible view.'];
@@ -2342,24 +2492,24 @@
         w: w - 0.28,
         h: h - 0.48,
         fontSize: 9,
-        color: 'DCE7FA',
+        color: theme.text,
         margin: 0.03,
         valign: 'top',
         breakLine: false
       });
     }
 
-    function addBannerCard(slide, title, body, x, y, w, h) {
+    function addBannerCard(slide, title, body, x, y, w, h, theme) {
       slide.addShape('rect', {
         x, y, w, h,
-        line: { color: '243452', pt: 1 },
-        fill: { color: '142647' }
+        line: { color: theme.border, pt: 1 },
+        fill: { color: theme.panelAlt }
       });
 
       slide.addShape('rect', {
         x, y, w, h: 0.08,
-        line: { color: '38BDF8', transparency: 100 },
-        fill: { color: '38BDF8' }
+        line: { color: theme.accent, transparency: 100 },
+        fill: { color: theme.accent }
       });
 
       slide.addText(title, {
@@ -2369,7 +2519,7 @@
         h: 0.18,
         fontSize: 11,
         bold: true,
-        color: '8ADFFF'
+        color: theme.kickerText
       });
 
       slide.addText(body, {
@@ -2378,16 +2528,16 @@
         w: w - 0.32,
         h: h - 0.52,
         fontSize: 11,
-        color: 'E8F2FF',
+        color: theme.text,
         margin: 0.03
       });
     }
 
-    function addMetricSnapshotCard(slide, card, x, y, w, h, accentColor = '38BDF8') {
+    function addMetricSnapshotCard(slide, card, x, y, w, h, accentColor, theme) {
       slide.addShape('rect', {
         x, y, w, h,
-        line: { color: '223453', pt: 1 },
-        fill: { color: '14223F' }
+        line: { color: theme.border, pt: 1 },
+        fill: { color: theme.panel }
       });
 
       slide.addShape('rect', {
@@ -2398,19 +2548,19 @@
 
       slide.addText(card.metric, {
         x: x + 0.22, y: y + 0.14, w: 2.8, h: 0.18,
-        fontSize: 10, bold: true, color: 'AEBBD7'
+        fontSize: 10, bold: true, color: theme.muted
       });
 
       slide.addText(`${card.latest ?? '-'}${card.unit}`, {
         x: x + 0.22, y: y + 0.42, w: 3.0, h: 0.28,
-        fontSize: 20, bold: true, color: 'FFFFFF'
+        fontSize: 20, bold: true, color: theme.title
       });
 
       slide.addText(
         card.target !== null ? `Target ${card.target}${card.unit}` : 'Trend based KPI',
         {
           x: x + 0.22, y: y + 0.84, w: w - 0.35, h: 0.16,
-          fontSize: 9, color: 'DCE7FA'
+          fontSize: 9, color: theme.text
         }
       );
     }
@@ -2452,6 +2602,7 @@
 
       try {
         const pptx = new PptxClass();
+        const theme = getSelectedPptTheme();
 
         pptx.layout = 'LAYOUT_WIDE';
         pptx.author = 'Stratos Reporting Studio';
@@ -2465,112 +2616,136 @@
         const exportDate = new Date().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
 
         let slide = pptx.addSlide();
-        slide.background = { color: '0A1226' };
+        slide.background = { color: theme.bg };
 
         slide.addShape('rect', {
           x: 0, y: 0, w: 13.33, h: 7.5,
-          line: { color: '0A1226', transparency: 100 },
-          fill: { color: '0A1226' }
+          line: { color: theme.bg, transparency: 100 },
+          fill: { color: theme.bg }
         });
 
         slide.addShape('rect', {
           x: 0, y: 0, w: 13.33, h: 0.12,
-          line: { color: '38BDF8', transparency: 100 },
-          fill: { color: '38BDF8' }
+          line: { color: theme.accent, transparency: 100 },
+          fill: { color: theme.accent }
         });
 
         slide.addShape('rect', {
           x: 0.6, y: 1.15, w: 0.16, h: 2.35,
-          line: { color: '38BDF8', transparency: 100 },
-          fill: { color: '38BDF8' }
+          line: { color: theme.accent, transparency: 100 },
+          fill: { color: theme.accent }
         });
 
         slide.addText('Operational Performance Review', {
           x: 1.0, y: 1.2, w: 7.8, h: 0.52,
-          fontSize: 28, bold: true, color: 'FFFFFF'
+          fontSize: 28, bold: true, color: theme.title
         });
 
         slide.addText('Executive-ready reporting deck generated from Stratos Reporting Studio', {
           x: 1.0, y: 1.84, w: 7.5, h: 0.22,
-          fontSize: 12, color: 'B8C7E2'
+          fontSize: 12, color: theme.muted
         });
 
-        pptAddKicker(slide, reportMode, 1.0, 2.24, 1.7);
-        pptAddKicker(slide, exportDate, 2.9, 2.24, 1.65);
+        pptAddKicker(slide, reportMode, 1.0, 2.24, 1.7, theme);
+        pptAddKicker(slide, exportDate, 2.9, 2.24, 1.65, theme);
 
         slide.addShape('rect', {
           x: 0.95, y: 2.75, w: 5.9, h: 1.12,
-          line: { color: '223453', pt: 1 },
-          fill: { color: '14223F' }
+          line: { color: theme.border, pt: 1 },
+          fill: { color: theme.panel }
         });
 
         slide.addText('Filters', {
           x: 1.15, y: 2.95, w: 1.1, h: 0.16,
-          fontSize: 10, bold: true, color: '8ADFFF'
+          fontSize: 10, bold: true, color: theme.kickerText
         });
 
         slide.addText(filterText, {
           x: 1.15, y: 3.2, w: 5.35, h: 0.36,
-          fontSize: 11, color: 'E6EEFB'
+          fontSize: 11, color: theme.text
         });
 
         slide.addShape('rect', {
           x: 8.4, y: 1.2, w: 3.8, h: 2.3,
-          line: { color: '223453', pt: 1 },
-          fill: { color: '14223F' }
+          line: { color: theme.border, pt: 1 },
+          fill: { color: theme.panel }
         });
 
         slide.addText('Generated By', {
           x: 8.65, y: 1.55, w: 2.2, h: 0.16,
-          fontSize: 10, bold: true, color: '8ADFFF'
+          fontSize: 10, bold: true, color: theme.kickerText
         });
 
         slide.addText('Stratos Reporting Studio', {
           x: 8.65, y: 1.9, w: 2.9, h: 0.22,
-          fontSize: 16, bold: true, color: 'FFFFFF'
+          fontSize: 16, bold: true, color: theme.title
         });
 
         slide.addText('Leadership deck with KPI snapshots, commentary, RCA and action plans', {
           x: 8.65, y: 2.35, w: 3.1, h: 0.55,
-          fontSize: 10, color: 'C9D7EE'
+          fontSize: 10, color: theme.text
         });
+
+        if (state.clientLogoData) {
+          slide.addImage({
+            data: state.clientLogoData,
+            x: 10.6,
+            y: 4.9,
+            w: 1.65,
+            h: 0.7,
+            contain: true
+          });
+        } else {
+          slide.addShape('rect', {
+            x: 9.95, y: 4.9, w: 2.3, h: 0.72,
+            line: { color: theme.border, pt: 1, dash: 'dash' },
+            fill: { color: theme.panelAlt }
+          });
+
+          slide.addText('Optional Client Logo', {
+            x: 10.1, y: 5.15, w: 2.0, h: 0.12,
+            fontSize: 8.5,
+            color: theme.muted,
+            align: 'center'
+          });
+        }
 
         slide.addShape('rect', {
           x: 0.6, y: 6.75, w: 12.15, h: 0.02,
-          line: { color: '223453', transparency: 100 },
-          fill: { color: '223453' }
+          line: { color: theme.border, transparency: 100 },
+          fill: { color: theme.border }
         });
 
         slide.addText('Confidential - Internal Operations Review', {
           x: 0.6, y: 6.92, w: 3.8, h: 0.12,
-          fontSize: 8.5, color: '8CA0C4'
+          fontSize: 8.5, color: theme.footer
         });
 
         slide.addText('Prepared for leadership review', {
           x: 10.1, y: 6.92, w: 2.6, h: 0.12,
-          fontSize: 8.5, color: '8CA0C4', align: 'right'
+          fontSize: 8.5, color: theme.footer, align: 'right'
         });
 
         slide = pptx.addSlide();
-        slide.background = { color: '0D1833' };
-        pptAddHeader(slide, 'Executive Summary', `${reportMode} • ${filterText}`);
+        slide.background = { color: theme.bg };
+        pptAddHeader(slide, 'Executive Summary', `${reportMode} • ${filterText}`, theme);
 
         const overallText = document.getElementById('execOverall').textContent || '';
         const achievements = Array.from(document.querySelectorAll('#execAchievements li')).map(li => li.textContent);
         const risks = Array.from(document.querySelectorAll('#execRisks li')).map(li => li.textContent);
         const actions = Array.from(document.querySelectorAll('#execActions li')).map(li => li.textContent);
 
-        addBannerCard(slide, 'Overall Performance', overallText, 0.6, 1.0, 12.1, 1.2);
+        addBannerCard(slide, 'Overall Performance', overallText, 0.6, 1.0, 12.1, 1.2, theme);
 
-        addSimpleTextBox(slide, 'Key Achievements', achievements, 0.6, 2.55, 3.85, 3.65, '22C55E');
-        addSimpleTextBox(slide, 'Key Risks', risks, 4.73, 2.55, 3.85, 3.65, 'EF4444');
-        addSimpleTextBox(slide, 'Priority Actions', actions, 8.86, 2.55, 3.85, 3.65, '38BDF8');
+        addSimpleTextBox(slide, 'Key Achievements', achievements, 0.6, 2.55, 3.85, 3.65, theme.success, theme);
+        addSimpleTextBox(slide, 'Key Risks', risks, 4.73, 2.55, 3.85, 3.65, theme.danger, theme);
+        addSimpleTextBox(slide, 'Priority Actions', actions, 8.86, 2.55, 3.85, 3.65, theme.accent, theme);
 
-        pptAddFooter(slide);
+        pptAddFooter(slide, theme);
 
         slide = pptx.addSlide();
-        slide.background = { color: '0D1833' };
-        pptAddHeader(slide, 'KPI Snapshot', `${reportMode} • Leadership summary`);
+        slide.background = { color: theme.bg };
+        pptAddHeader(slide, 'KPI Snapshot', `${reportMode} • Leadership summary`, theme);
 
         const snapshotCards = state.metrics.slice(0, 8).map(metric => {
           const built = buildSeries(metric);
@@ -2584,17 +2759,17 @@
           };
         });
 
-        const accentCycle = ['38BDF8','14B8A6','8B5CF6','F59E0B','22C55E','EF4444','38BDF8','14B8A6'];
+        const accentCycle = [theme.accent, theme.accent2, theme.warning, theme.success, theme.danger, theme.accent, theme.accent2, theme.warning];
 
         snapshotCards.forEach((card, idx) => {
           const col = idx % 2;
           const row = Math.floor(idx / 2);
           const x = 0.6 + (col * 6.1);
           const y = 1.15 + (row * 1.35);
-          addMetricSnapshotCard(slide, card, x, y, 5.72, 1.08, accentCycle[idx % accentCycle.length]);
+          addMetricSnapshotCard(slide, card, x, y, 5.72, 1.08, accentCycle[idx % accentCycle.length], theme);
         });
 
-        pptAddFooter(slide);
+        pptAddFooter(slide, theme);
 
         for (const metric of state.metrics) {
           state.currentMetric = metric;
@@ -2612,15 +2787,15 @@
           const action = Array.from(document.querySelectorAll('#actionList li')).map(li => li.textContent);
 
           slide = pptx.addSlide();
-          slide.background = { color: '0D1833' };
-          pptAddHeader(slide, buildChartTitle(metric), document.getElementById('chartSubtitle').textContent || '');
+          slide.background = { color: theme.bg };
+          pptAddHeader(slide, buildChartTitle(metric), document.getElementById('chartSubtitle').textContent || '', theme);
 
-          pptAddKicker(slide, document.getElementById('aggregationLabel').textContent || 'Current view', 0.6, 0.86, 2.45);
+          pptAddKicker(slide, document.getElementById('aggregationLabel').textContent || 'Current view', 0.6, 0.86, 2.45, theme);
 
           slide.addShape('rect', {
             x: 0.6, y: 1.18, w: 8.1, h: 3.98,
-            line: { color: '243452', pt: 1 },
-            fill: { color: '12203B' }
+            line: { color: theme.border, pt: 1 },
+            fill: { color: theme.chartFrame }
           });
 
           slide.addImage({
@@ -2628,11 +2803,11 @@
             x: 0.68, y: 1.27, w: 7.94, h: 3.78
           });
 
-          addSimpleTextBox(slide, 'Highlights', highlights, 8.95, 1.18, 3.75, 1.92, '22C55E');
-          addSimpleTextBox(slide, 'What went wrong / RCA', rca, 8.95, 3.28, 3.75, 1.92, 'EF4444');
-          addSimpleTextBox(slide, 'Action Plan', action, 0.6, 5.42, 12.1, 1.32, '38BDF8');
+          addSimpleTextBox(slide, 'Highlights', highlights, 8.95, 1.18, 3.75, 1.92, theme.success, theme);
+          addSimpleTextBox(slide, 'What went wrong / RCA', rca, 8.95, 3.28, 3.75, 1.92, theme.danger, theme);
+          addSimpleTextBox(slide, 'Action Plan', action, 0.6, 5.42, 12.1, 1.32, theme.accent, theme);
 
-          pptAddFooter(slide, 'Stratos Reporting Studio', metric);
+          pptAddFooter(slide, theme, 'Stratos Reporting Studio', metric);
         }
 
         state.currentMetric = originalMetric;
@@ -2644,7 +2819,7 @@
         renderSnapshots();
         renderExecutiveSummary();
 
-        await pptx.writeFile({ fileName: 'Stratos_WBR_Report_Upgraded.pptx' });
+        await pptx.writeFile({ fileName: `Stratos_WBR_Report_${theme.name.replace(/\s+/g,'_')}.pptx` });
       } catch (err) {
         console.error('PPT export failed:', err);
         alert('PPT export failed. Please press F12, open Console, and check the exact error.');
@@ -2713,6 +2888,11 @@
     document.getElementById('fileInput').addEventListener('change', e => {
       const file = e.target.files[0];
       if (file) readUploadedFile(file);
+    });
+
+    document.getElementById('clientLogoInput').addEventListener('change', async e => {
+      const file = e.target.files[0];
+      await handleClientLogoUpload(file);
     });
 
     document.getElementById('weeklyBtn').addEventListener('click', () => setViewMode('weekly'));
