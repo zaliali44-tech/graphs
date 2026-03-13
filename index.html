@@ -1153,7 +1153,7 @@
                 <button class="btn btn-secondary" id="exportPngBtn" type="button">Export PNG</button>
               </div>
             </div>
-            <p class="small-note">PNG and PDF exports work in this version. PowerPoint export now uses high-resolution image-based charts for stable download behavior.</p>
+            <p class="small-note">PNG and PDF exports work in this version. PowerPoint export uses image-based charts for stability.</p>
           </div>
         </div>
       </section>
@@ -2198,307 +2198,61 @@
       setTimeout(() => popup.print(), 250);
     }
 
-    function getPptxConstructor() {
+    function getPptLibrary() {
       if (typeof PptxGenJS !== 'undefined') return PptxGenJS;
       if (typeof window !== 'undefined' && typeof window.PptxGenJS !== 'undefined') return window.PptxGenJS;
       return null;
     }
 
-    function sanitizeFileName(name) {
-      return String(name || 'Stratos_WBR_Report').replace(/[\\/:*?"<>|]+/g, '_');
-    }
+    function getChartImageForPpt() {
+      if (!state.chart) return '';
 
-    function buildChartImageForExport(chartInstance, backgroundColor = '#0d1833', scale = 2) {
-      const sourceCanvas = chartInstance.canvas;
-      const exportCanvas = document.createElement('canvas');
-      exportCanvas.width = sourceCanvas.width * scale;
-      exportCanvas.height = sourceCanvas.height * scale;
+      const src = state.chart.canvas;
+      const scale = 2;
+      const canvas = document.createElement('canvas');
+      canvas.width = src.width * scale;
+      canvas.height = src.height * scale;
 
-      const ctx = exportCanvas.getContext('2d');
+      const ctx = canvas.getContext('2d');
       ctx.scale(scale, scale);
-      ctx.fillStyle = backgroundColor;
-      ctx.fillRect(0, 0, sourceCanvas.width, sourceCanvas.height);
-      ctx.drawImage(sourceCanvas, 0, 0);
+      ctx.fillStyle = '#0d1833';
+      ctx.fillRect(0, 0, src.width, src.height);
+      ctx.drawImage(src, 0, 0);
 
-      return exportCanvas.toDataURL('image/png', 1.0);
+      return canvas.toDataURL('image/png', 1.0);
     }
 
-    function nextPaint() {
-      return new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    }
-
-    async function setMetricForExport(metric) {
-      state.currentMetric = metric;
-      document.getElementById('metricSelect').value = metric;
-      renderMetricList();
-      renderChart();
-      renderSnapshots();
-      renderExecutiveSummary();
-      await nextPaint();
-    }
-
-    async function exportPPT() {
-      const PptxClass = getPptxConstructor();
-
-      if (!PptxClass) {
-        alert('PowerPoint library did not load. Please refresh and try again.');
-        return;
-      }
-
-      if (!state.chart || !state.metrics.length) {
-        alert('Please load data first before exporting PowerPoint.');
-        return;
-      }
-
-      const exportBtn = document.getElementById('exportPptBtn');
-      const originalBtnText = exportBtn.textContent;
-      exportBtn.disabled = true;
-      exportBtn.textContent = 'Exporting...';
-
-      const originalState = {
-        currentMetric: state.currentMetric,
-        breakdownMode: document.getElementById('breakdownModeSelect').value,
-        summaryMode: document.getElementById('summaryBlocksSelect').value,
-        metricSelect: document.getElementById('metricSelect').value
-      };
-
-      try {
-        const pptx = new PptxClass();
-        pptx.layout = 'LAYOUT_WIDE';
-        pptx.author = 'OpenAI';
-        pptx.company = 'Stratos Reporting Studio';
-        pptx.subject = 'Operational Performance Review';
-        pptx.title = 'Operational Performance Review';
-        pptx.lang = 'en-US';
-
-        const reportTitle = 'Operational Performance Review';
-        const periodLabel = state.currentMode === 'weekly' ? 'Weekly View' : 'Monthly View';
-        const filtersText = buildAppliedFiltersText();
-
-        addPptTitleSlide(pptx, reportTitle, periodLabel, filtersText);
-
-        await setMetricForExport(originalState.currentMetric);
-        addPptExecutiveSummarySlide(pptx, reportTitle, periodLabel, filtersText);
-        addPptSnapshotSlide(pptx);
-
-        for (const metric of state.metrics) {
-          await setMetricForExport(metric);
-          addPptMetricSlide(pptx, metric);
-        }
-
-        state.currentMetric = originalState.currentMetric;
-        document.getElementById('metricSelect').value = originalState.metricSelect;
-        document.getElementById('breakdownModeSelect').value = originalState.breakdownMode;
-        document.getElementById('summaryBlocksSelect').value = originalState.summaryMode;
-        renderMetricList();
-        renderChart();
-        renderSnapshots();
-        renderExecutiveSummary();
-
-        const fileName = sanitizeFileName('Stratos_WBR_Report_' + new Date().toISOString().slice(0,10) + '.pptx');
-        await pptx.writeFile({ fileName });
-      } catch (err) {
-        console.error('PPT export failed:', err);
-        alert('PPT export failed. Please check browser console for details.');
-      } finally {
-        exportBtn.disabled = false;
-        exportBtn.textContent = originalBtnText;
-      }
-    }
-
-    function addPptTitleSlide(pptx, title, periodLabel, filtersText) {
-      const slide = pptx.addSlide();
-      slide.background = { color: '0D1833' };
-
-      slide.addText(title, {
-        x: 0.6, y: 0.9, w: 11.6, h: 0.6,
-        fontFace: 'Aptos Display',
-        fontSize: 24,
-        bold: true,
-        color: 'FFFFFF'
-      });
-
-      slide.addText(periodLabel, {
-        x: 0.6, y: 1.7, w: 4.5, h: 0.3,
-        fontSize: 14,
-        color: 'DCE7FA'
-      });
-
-      slide.addText(filtersText || 'All available filters', {
-        x: 0.6, y: 2.1, w: 7.5, h: 0.6,
-        fontSize: 12,
-        color: 'AEBBD7'
-      });
-
-      slide.addShape(PptxClassShapeType().rect, {
-        x: 0.6,
-        y: 4.4,
-        w: 4.0,
-        h: 1.1,
-        line: { color: '38BDF8', transparency: 100 },
-        fill: { color: '162442' }
-      });
-
-      slide.addText('Generated by\nStratos Reporting Studio', {
-        x: 0.9,
-        y: 4.65,
-        w: 3.3,
-        h: 0.6,
-        fontSize: 14,
-        color: 'FFFFFF',
-        bold: true
-      });
-
-      slide.addText('Confidential - Internal Operations Review', {
-        x: 0.6,
-        y: 6.7,
-        w: 4.5,
-        h: 0.2,
-        fontSize: 9,
-        color: 'AEBBD7'
-      });
-    }
-
-    function addPptExecutiveSummarySlide(pptx, title, periodLabel, filtersText) {
-      const slide = pptx.addSlide();
-      applyPptDarkTemplate(slide, 'Executive Summary', periodLabel + ' · ' + (filtersText || 'All filters'));
-
-      const overallText = document.getElementById('execOverall').textContent || '';
-      const achievements = Array.from(document.querySelectorAll('#execAchievements li')).map(li => li.textContent);
-      const risks = Array.from(document.querySelectorAll('#execRisks li')).map(li => li.textContent);
-      const actions = Array.from(document.querySelectorAll('#execActions li')).map(li => li.textContent);
-
-      slide.addText(overallText, {
-        x: 0.6, y: 1.2, w: 12.0, h: 0.8,
-        fontSize: 12,
-        color: 'DCE7FA',
-        margin: 0.04
-      });
-
-      addPptBulletsBox(slide, 'Key Achievements', achievements, 0.6, 2.2, 3.9, 2.0);
-      addPptBulletsBox(slide, 'Key Risks', risks, 4.8, 2.2, 3.9, 2.0);
-      addPptBulletsBox(slide, 'Priority Actions', actions, 9.0, 2.2, 3.3, 2.0);
-    }
-
-    function addPptSnapshotSlide(pptx) {
-      const slide = pptx.addSlide();
-      applyPptDarkTemplate(slide, 'KPI Snapshot', 'Current dashboard view');
-
-      const cards = state.metrics.map(metric => {
-        const built = buildSeries(metric);
-        const latest = lastNonNull((built.actualSeries[0] || {}).values || []);
-        const compare = lastNonNull(built.target || []);
-        const prev = previousNonNull((built.actualSeries[0] || {}).values || []);
-        const info = getArrowInfo(latest, compare, prev, built.settings.higherIsBetter);
-
-        return {
-          metric,
-          latest,
-          unit: built.settings.unit || '',
-          sub: compare !== null ? 'Target ' + compare + (built.settings.unit || '') : 'Trend based KPI',
-          arrow: info ? info.arrow : '',
-          color: info ? (info.color === '#22c55e' ? '22C55E' : 'EF4444') : 'DCE7FA'
-        };
-      });
-
-      const visible = cards.slice(0, 8);
-
-      visible.forEach((card, idx) => {
-        const col = idx % 2;
-        const row = Math.floor(idx / 2);
-        const x = 0.6 + (col * 6.1);
-        const y = 1.3 + (row * 1.35);
-
-        slide.addShape(PptxClassShapeType().roundRect, {
-          x, y, w: 5.7, h: 1.1,
-          rectRadius: 0.08,
-          line: { color: '243452', transparency: 0 },
-          fill: { color: '162442' }
-        });
-
-        slide.addText(card.metric, {
-          x: x + 0.2, y: y + 0.14, w: 2.8, h: 0.2,
-          fontSize: 10, color: 'AEBBD7', bold: true
-        });
-
-        slide.addText(String(card.latest == null ? '-' : card.latest) + card.unit + ' ' + card.arrow, {
-          x: x + 0.2, y: y + 0.42, w: 2.8, h: 0.25,
-          fontSize: 18, color: card.color, bold: true
-        });
-
-        slide.addText(card.sub, {
-          x: x + 0.2, y: y + 0.78, w: 4.8, h: 0.18,
-          fontSize: 9, color: 'DCE7FA'
-        });
-      });
-    }
-
-    function addPptMetricSlide(pptx, metric) {
-      const slide = pptx.addSlide();
-      applyPptDarkTemplate(slide, buildChartTitle(metric), document.getElementById('chartSubtitle').textContent);
-
-      slide.addText(document.getElementById('aggregationLabel').textContent || '', {
-        x: 0.6, y: 0.78, w: 4.0, h: 0.18,
-        fontSize: 9, color: 'AEBBD7', bold: true
-      });
-
-      const chartImg = buildChartImageForExport(state.chart, '#0d1833', 2);
-      slide.addImage({ data: chartImg, x: 0.55, y: 1.05, w: 8.1, h: 3.7 });
-
-      const highlights = Array.from(document.querySelectorAll('#highlightsList li')).map(li => li.textContent);
-      const rca = Array.from(document.querySelectorAll('#rcaList li')).map(li => li.textContent);
-      const actions = Array.from(document.querySelectorAll('#actionList li')).map(li => li.textContent);
-
-      addPptBulletsBox(slide, 'Highlights', highlights, 0.6, 5.0, 3.9, 1.75);
-      addPptBulletsBox(slide, 'What went wrong / RCA', rca, 4.8, 5.0, 3.9, 1.75);
-      addPptBulletsBox(slide, 'Action Plan', actions, 9.0, 5.0, 3.3, 1.75);
-    }
-
-    function PptxClassShapeType() {
-      const PptxClass = getPptxConstructor();
-      return PptxClass.ShapeType;
-    }
-
-    function applyPptDarkTemplate(slide, title, subtitle) {
-      slide.background = { color: '0D1833' };
-
-      slide.addText(title, {
-        x: 0.6, y: 0.3, w: 7.8, h: 0.35,
-        fontFace: 'Aptos Display',
-        fontSize: 20,
-        bold: true,
-        color: 'FFFFFF'
-      });
-
-      slide.addText(subtitle || '', {
-        x: 0.6, y: 0.64, w: 8.5, h: 0.2,
-        fontSize: 10,
-        color: 'AEBBD7'
-      });
-    }
-
-    function addPptBulletsBox(slide, title, items, x, y, w, h) {
-      slide.addShape(PptxClassShapeType().roundRect, {
+    function addSimpleTextBox(slide, title, items, x, y, w, h, shapeType) {
+      slide.addShape(shapeType.rect, {
         x, y, w, h,
-        rectRadius: 0.08,
-        line: { color: '243452', transparency: 0 },
+        line: { color: '243452', pt: 1 },
         fill: { color: '162442' }
       });
 
       slide.addText(title, {
-        x: x + 0.15, y: y + 0.12, w: w - 0.3, h: 0.2,
-        fontSize: 11, color: 'FFFFFF', bold: true
+        x: x + 0.12,
+        y: y + 0.10,
+        w: w - 0.24,
+        h: 0.2,
+        fontSize: 11,
+        bold: true,
+        color: 'FFFFFF'
       });
 
       const safeItems = (items && items.length) ? items : ['No major issue detected in the visible view.'];
+      const text = safeItems.map(item => '• ' + item).join('\n');
 
-      slide.addText(
-        safeItems.map(t => ({ text: t, options: { bullet: { indent: 12 } } })),
-        {
-          x: x + 0.18, y: y + 0.42, w: w - 0.34, h: h - 0.5,
-          fontSize: 9.5, color: 'DCE7FA', breakLine: true, margin: 0.02, valign: 'top'
-        }
-      );
+      slide.addText(text, {
+        x: x + 0.14,
+        y: y + 0.38,
+        w: w - 0.28,
+        h: h - 0.48,
+        fontSize: 9,
+        color: 'DCE7FA',
+        margin: 0.03,
+        valign: 'top',
+        breakLine: false
+      });
     }
 
     function buildAppliedFiltersText() {
@@ -2511,6 +2265,188 @@
         }
       });
       return parts.join(' | ');
+    }
+
+    async function exportPPT() {
+      const PptxClass = getPptLibrary();
+
+      if (!PptxClass) {
+        alert('PowerPoint library did not load. Please refresh and try again.');
+        return;
+      }
+
+      if (!state.chart || !state.metrics.length) {
+        alert('Please load data first before exporting PowerPoint.');
+        return;
+      }
+
+      const exportBtn = document.getElementById('exportPptBtn');
+      const oldText = exportBtn.textContent;
+      exportBtn.disabled = true;
+      exportBtn.textContent = 'Exporting...';
+
+      const originalMetric = state.currentMetric;
+      const originalMetricSelect = document.getElementById('metricSelect').value;
+      const originalBreakdown = document.getElementById('breakdownModeSelect').value;
+      const originalSummary = document.getElementById('summaryBlocksSelect').value;
+
+      try {
+        const pptx = new PptxClass();
+        const shapeType = PptxClass.ShapeType;
+
+        pptx.layout = 'LAYOUT_WIDE';
+        pptx.author = 'Stratos Reporting Studio';
+        pptx.company = 'Stratos Reporting Studio';
+        pptx.subject = 'Operational Performance Review';
+        pptx.title = 'Operational Performance Review';
+        pptx.lang = 'en-US';
+
+        let slide = pptx.addSlide();
+        slide.background = { color: '0D1833' };
+        slide.addText('Operational Performance Review', {
+          x: 0.6, y: 0.7, w: 8, h: 0.5,
+          fontSize: 24, bold: true, color: 'FFFFFF'
+        });
+        slide.addText(state.currentMode === 'weekly' ? 'Weekly View' : 'Monthly View', {
+          x: 0.6, y: 1.4, w: 4, h: 0.3,
+          fontSize: 14, color: 'DCE7FA'
+        });
+        slide.addText(buildAppliedFiltersText() || 'All filters', {
+          x: 0.6, y: 1.8, w: 8, h: 0.4,
+          fontSize: 11, color: 'AEBBD7'
+        });
+
+        slide = pptx.addSlide();
+        slide.background = { color: '0D1833' };
+        slide.addText('Executive Summary', {
+          x: 0.6, y: 0.3, w: 6, h: 0.4,
+          fontSize: 20, bold: true, color: 'FFFFFF'
+        });
+
+        const overallText = document.getElementById('execOverall').textContent || '';
+        const achievements = Array.from(document.querySelectorAll('#execAchievements li')).map(li => li.textContent);
+        const risks = Array.from(document.querySelectorAll('#execRisks li')).map(li => li.textContent);
+        const actions = Array.from(document.querySelectorAll('#execActions li')).map(li => li.textContent);
+
+        slide.addText(overallText, {
+          x: 0.6, y: 1.0, w: 12, h: 0.8,
+          fontSize: 11, color: 'DCE7FA', margin: 0.04
+        });
+
+        addSimpleTextBox(slide, 'Key Achievements', achievements, 0.6, 2.1, 3.8, 2.1, shapeType);
+        addSimpleTextBox(slide, 'Key Risks', risks, 4.7, 2.1, 3.8, 2.1, shapeType);
+        addSimpleTextBox(slide, 'Priority Actions', actions, 8.8, 2.1, 3.8, 2.1, shapeType);
+
+        slide = pptx.addSlide();
+        slide.background = { color: '0D1833' };
+        slide.addText('KPI Snapshot', {
+          x: 0.6, y: 0.3, w: 6, h: 0.4,
+          fontSize: 20, bold: true, color: 'FFFFFF'
+        });
+
+        const snapshotCards = state.metrics.slice(0, 8).map(metric => {
+          const built = buildSeries(metric);
+          const latest = lastNonNull((built.actualSeries[0] || {}).values || []);
+          const target = lastNonNull(built.target || []);
+          return {
+            metric,
+            latest,
+            unit: built.settings.unit || '',
+            target
+          };
+        });
+
+        snapshotCards.forEach((card, idx) => {
+          const col = idx % 2;
+          const row = Math.floor(idx / 2);
+          const x = 0.6 + (col * 6.1);
+          const y = 1.1 + (row * 1.3);
+
+          slide.addShape(shapeType.rect, {
+            x, y, w: 5.7, h: 1.0,
+            line: { color: '243452', pt: 1 },
+            fill: { color: '162442' }
+          });
+
+          slide.addText(card.metric, {
+            x: x + 0.15, y: y + 0.12, w: 2.5, h: 0.2,
+            fontSize: 10, bold: true, color: 'AEBBD7'
+          });
+
+          slide.addText(`${card.latest ?? '-'}${card.unit}`, {
+            x: x + 0.15, y: y + 0.38, w: 2.8, h: 0.25,
+            fontSize: 18, bold: true, color: 'FFFFFF'
+          });
+
+          slide.addText(
+            card.target !== null ? `Target ${card.target}${card.unit}` : 'Trend based KPI',
+            {
+              x: x + 0.15, y: y + 0.72, w: 4.6, h: 0.16,
+              fontSize: 9, color: 'DCE7FA'
+            }
+          );
+        });
+
+        for (const metric of state.metrics) {
+          state.currentMetric = metric;
+          document.getElementById('metricSelect').value = metric;
+          renderMetricList();
+          renderChart();
+          renderSnapshots();
+          renderExecutiveSummary();
+
+          await new Promise(resolve => requestAnimationFrame(() => resolve()));
+
+          const chartImage = getChartImageForPpt();
+          const highlights = Array.from(document.querySelectorAll('#highlightsList li')).map(li => li.textContent);
+          const rca = Array.from(document.querySelectorAll('#rcaList li')).map(li => li.textContent);
+          const action = Array.from(document.querySelectorAll('#actionList li')).map(li => li.textContent);
+
+          slide = pptx.addSlide();
+          slide.background = { color: '0D1833' };
+
+          slide.addText(buildChartTitle(metric), {
+            x: 0.6, y: 0.3, w: 8, h: 0.35,
+            fontSize: 20, bold: true, color: 'FFFFFF'
+          });
+
+          slide.addText(document.getElementById('chartSubtitle').textContent || '', {
+            x: 0.6, y: 0.68, w: 9, h: 0.2,
+            fontSize: 10, color: 'AEBBD7'
+          });
+
+          slide.addText(document.getElementById('aggregationLabel').textContent || '', {
+            x: 0.6, y: 0.88, w: 6, h: 0.18,
+            fontSize: 9, color: 'AEBBD7'
+          });
+
+          slide.addImage({
+            data: chartImage,
+            x: 0.6, y: 1.1, w: 8.0, h: 3.7
+          });
+
+          addSimpleTextBox(slide, 'Highlights', highlights, 0.6, 5.1, 3.8, 1.8, shapeType);
+          addSimpleTextBox(slide, 'What went wrong / RCA', rca, 4.7, 5.1, 3.8, 1.8, shapeType);
+          addSimpleTextBox(slide, 'Action Plan', action, 8.8, 5.1, 3.8, 1.8, shapeType);
+        }
+
+        state.currentMetric = originalMetric;
+        document.getElementById('metricSelect').value = originalMetricSelect;
+        document.getElementById('breakdownModeSelect').value = originalBreakdown;
+        document.getElementById('summaryBlocksSelect').value = originalSummary;
+        renderMetricList();
+        renderChart();
+        renderSnapshots();
+        renderExecutiveSummary();
+
+        await pptx.writeFile({ fileName: 'Stratos_WBR_Report.pptx' });
+      } catch (err) {
+        console.error('PPT export failed:', err);
+        alert('PPT export failed. Please press F12, open Console, and check the exact error.');
+      } finally {
+        exportBtn.disabled = false;
+        exportBtn.textContent = oldText;
+      }
     }
 
     function downloadTemplate() {
