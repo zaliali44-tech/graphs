@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stratos Reporting Studio</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <style>
+    :root{
+      --page-bg:#dfe5ec;
+      --nav-bg:#05102a;
+      --panel:#0d1833;
+      --panel-2:#162442;
+      --panel-3:#1d2d4d;
+      --card-border:rgba(255,255,255,0.08);
+      --text:#eef4ff;
+      --muted:#aebbd7;
+      --light-text:#0d1b34;
+      --light-muted:#5d6b84;
+      --blue:#3b82f6;
+      --blue-2:#38bdf8;
+      --purple:#8b5cf6;
+      --teal:#14b8a6;
+      --green:#22c55e;
+      --red:#ef4444;
+      --amber:#f59e0b;
+      --white:#ffffff;
+      --shadow:0 16px 36px rgba(0,0,0,0.14);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:var(--page-bg);color:var(--text)}
+    body{min-height:100vh}
+    .app{display:grid;grid-template-columns:280px 1fr;min-height:100vh;background:var(--page-bg)}
+    .sidebar{background:linear-gradient(180deg,#061129 0%, #030c20 100%);color:var(--text);padding:22px 18px;border-right:1px solid rgba(0,0,0,.08);position:sticky;top:0;height:100vh;overflow:auto}
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:26px}
+    .brand-badge{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#66b4ff,#7f72ff);display:flex;align-items:center;justify-content:center;font-weight:800;box-shadow:var(--shadow)}
+    .brand h1{margin:0;font-size:18px;line-height:1.2}
+    .brand p{margin:4px 0 0;color:var(--muted);font-size:12px}
+    .nav-title{font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin:0 0 10px}
+    .nav-item{width:100%;display:block;text-align:left;padding:12px 14px;margin-bottom:8px;border-radius:12px;border:1px solid transparent;background:transparent;color:var(--text);font-size:14px;cursor:pointer;transition:.2s ease}
+    .nav-item.active,.nav-item:hover{background:rgba(56,189,248,.12);border-color:rgba(56,189,248,.18)}
+    .sidebar-footer{margin-top:24px;padding:16px;border-radius:16px;background:linear-gradient(180deg,rgba(20,184,166,.12),rgba(139,92,246,.12));border:1px solid rgba(255,255,255,.08)}
+    .sidebar-footer h3{margin:0 0 8px;font-size:14px}
+    .sidebar-footer p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}
+    .main{padding:24px;background:var(--page-bg)}
+    .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+    .topbar-left h2{margin:0;color:var(--light-text);font-size:30px}
+    .topbar-left p{margin:8px 0 0;color:var(--light-muted);line-height:1.65;max-width:980px}
+    .top-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{border:none;outline:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;transition:.2s ease}
+    .btn-primary{background:var(--blue);color:#fff;box-shadow:var(--shadow)}
+    .btn-secondary{background:#f7f9fc;color:#20304d;border:1px solid #c8d3e4}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--card-border);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .light-card{background:#f7f9fc;border:1px solid #c7d2e2;border-radius:var(--radius);box-shadow:none;color:var(--light-text)}
+    .card-header{padding:18px 20px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+    .card-header h3{margin:0;font-size:18px}
+    .card-header p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.6}
+    .light-card .card-header p{color:var(--light-muted)}
+    .card-body{padding:18px 20px 20px}
+    .section-space{margin-bottom:18px}
+    .hero-grid{display:grid;grid-template-columns:1.35fr .9fr;gap:18px;margin-bottom:18px}
+    .step-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+    .step-card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015));border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px}
+    .step-card .num{width:34px;height:34px;border-radius:10px;background:rgba(56,189,248,.16);color:#8adfff;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+    .step-card h4{margin:0 0 6px;font-size:15px}
+    .step-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+    .toggle-group{display:flex;gap:8px;flex-wrap:wrap}
+    .toggle-btn{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:var(--text);padding:9px 12px;border-radius:10px;cursor:pointer;font-weight:700;font-size:12px}
+    .toggle-btn.active{background:rgba(59,130,246,.18);border-color:rgba(59,130,246,.3)}
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+    .kpi-light{background:#f7f9fc;border:1px solid #c7d2e2;border-radius:16px;padding:16px;color:var(--light-text)}
+    .kpi-label{font-size:12px;color:#71809b;margin-bottom:10px;font-weight:700}
+    .kpi-value{font-size:22px;font-weight:800;display:flex;align-items:center;gap:8px;color:#14233f}
+    .kpi-sub{margin-top:8px;color:#6b7a94;font-size:12px;line-height:1.5}
+    .up{color:var(--green)} .down{color:var(--red)} .warn{color:var(--amber)}
+    .mini-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-bottom:18px}
+    .upload-zone{border:1.5px dashed rgba(59,130,246,.35);border-radius:18px;padding:28px;text-align:center;background:rgba(59,130,246,.04)}
+    .upload-zone h4{margin:0 0 8px;font-size:18px;color:#10203d}
+    .upload-zone p{margin:0 0 16px;color:#5f6f89;line-height:1.6}
+    .summary-list,.validation-list{display:flex;flex-direction:column;gap:10px}
+    .summary-item,.validation-item{padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:var(--text);line-height:1.55}
+    .validation-item span{margin-right:8px}
+    .template-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}
+    .table-wrap{overflow:auto;border:1px solid #cad5e4;border-radius:16px;margin-top:16px;background:#fff}
+    table{width:100%;border-collapse:collapse;min-width:1100px;background:#fff}
+    th,td{padding:12px 14px;border-bottom:1px solid #e4ebf3;text-align:left;font-size:13px;color:#20304d;white-space:nowrap}
+    th{background:#eef3f8;color:#0f1f3a;font-weight:800;position:sticky;top:0}
+    .suggestion-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .suggestion-card{padding:16px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015))}
+    .suggestion-card h4{margin:0 0 8px;font-size:15px}
+    .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .pill{display:inline-flex;align-items:center;padding:8px 10px;border-radius:999px;font-size:12px;font-weight:700;color:var(--text);border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04)}
+    .filters-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:14px}
+    .field{display:grid;gap:6px}
+    .field label{font-size:12px;font-weight:800;color:#d4dff4}
+    .light-card .field label{color:#41516f}
+    .field select,.field input{background:#243452;color:#f0f5ff;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:11px 12px;outline:none;font-size:14px}
+    .field select option{background:#ffffff;color:#162541}
+    .light-card .field select,.light-card .field input{background:#fff;color:#162541;border:1px solid #c7d2e2}
+    .studio{display:grid;grid-template-columns:250px 1fr 320px;gap:18px;margin-bottom:18px}
+    .metric-list{display:flex;flex-direction:column;gap:10px;max-height:560px;overflow:auto;padding-right:4px}
+    .metric-item{padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);cursor:pointer;transition:.2s ease}
+    .metric-item.active,.metric-item:hover{background:rgba(56,189,248,.12);border-color:rgba(56,189,248,.22)}
+    .metric-item h4{margin:0 0 6px;font-size:14px}
+    .metric-item p{margin:0;color:var(--muted);font-size:12px;line-height:1.5}
+    .chart-wrap{padding:8px 8px 0}
+    .chart-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:0 8px 12px}
+    .chart-title h3{margin:0;font-size:20px}
+    .chart-title p{margin:6px 0 0;color:var(--muted);font-size:13px}
+    .chart-canvas-holder{height:430px;padding:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:16px}
+    .insights-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+    .insight-box{min-height:170px;padding:16px;border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015));border:1px solid rgba(255,255,255,.08)}
+    .insight-box h4{margin:0 0 10px;font-size:15px}
+    .insight-box ul{margin:0;padding-left:18px;color:var(--muted);font-size:13px;line-height:1.7}
+    .exec-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-bottom:18px}
+    .exec-section{padding:16px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);margin-bottom:12px}
+    .exec-section h4{margin:0 0 8px;font-size:15px}
+    .exec-section p,.exec-section li{margin:0;color:var(--muted);font-size:13px;line-height:1.7}
+    .exec-section ul{padding-left:18px;margin:0}
+    .export-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .export-card{padding:18px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015))}
+    .export-card h4{margin:0 0 10px;font-size:16px}
+    .export-card p{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.6}
+    .small-note{color:var(--muted);font-size:12px;line-height:1.6;margin-top:10px}
+    .status-ok{color:#0f5132;background:#d1e7dd;border:1px solid #badbcc;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}
+    .status-warn{color:#664d03;background:#fff3cd;border:1px solid #ffecb5;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}
+    .inline-note{font-size:12px;color:#61738f;margin-top:6px}
+    .hidden{display:none}
+
+    @media (max-width:1400px){.filters-grid{grid-template-columns:repeat(3,1fr)}}
+    @media (max-width:1300px){.studio,.hero-grid,.template-grid,.exec-grid,.mini-grid{grid-template-columns:1fr}.suggestion-grid,.insights-grid,.export-grid,.kpi-grid,.step-cards{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:900px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.filters-grid,.suggestion-grid,.insights-grid,.export-grid,.kpi-grid,.step-cards{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-badge">S</div>
+        <div>
+          <h1>Stratos Reporting Studio</h1>
+          <p>Final Working Prototype</p>
+        </div>
+      </div>
+
+      <p class="nav-title">Workflow</p>
+      <button class="nav-item active" onclick="scrollToSection('overview')">Overview</button>
+      <button class="nav-item" onclick="scrollToSection('template')">Template Design</button>
+      <button class="nav-item" onclick="scrollToSection('validation')">Validation</button>
+      <button class="nav-item" onclick="scrollToSection('suggestions')">Chart Suggestions</button>
+      <button class="nav-item" onclick="scrollToSection('studio')">Chart Studio</button>
+      <button class="nav-item" onclick="scrollToSection('executive')">Executive Summary</button>
+      <button class="nav-item" onclick="scrollToSection('export')">Export</button>
+
+      <div class="sidebar-footer">
+        <h3>What this version does</h3>
+        <p>
+          Upload a real Excel file with <b>Data_Input</b> and <b>Metric_Settings</b>, detect dynamic KPIs,
+          filter by LOB or Channel, compare one dimension, generate chart summaries, and test the full flow with demo data.
+        </p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <h2>Smart graph, insight and deck builder</h2>
+          <p>
+            Upload a structured Excel template, validate the file, detect metrics and dimensions, build charts for overall or filtered views,
+            generate slide summaries and export a presentation-ready deck. This working prototype supports dynamic KPIs and multi-dimensional reporting.
+          </p>
+        </div>
+        <div class="top-actions">
+          <button class="btn btn-secondary" id="downloadTemplateBtn">Download Template</button>
+          <button class="btn btn-secondary" id="useDemoBtn">Use Demo Data</button>
+          <label class="btn btn-primary" for="fileInput">Upload Excel</label>
+          <input id="fileInput" type="file" accept=".xlsx,.xls" class="hidden" />
+        </div>
+      </div>
+
+      <section id="overview" class="section-space">
+        <div class="hero-grid">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3>Reporting workflow</h3>
+                <p>Guided reporting experience for WFM, operations and leadership decks.</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="step-cards">
+                <div class="step-card">
+                  <div class="num">1</div>
+                  <h4>Upload template</h4>
+                  <p>User downloads the Excel format, fills data in the approved structure and uploads the file.</p>
+                </div>
+                <div class="step-card">
+                  <div class="num">2</div>
+                  <h4>Validate and build</h4>
+                  <p>Tool validates metrics, dimensions and optional fields, then recommends charts and insights.</p>
+                </div>
+                <div class="step-card">
+                  <div class="num">3</div>
+                  <h4>Export deck</h4>
+                  <p>Generate executive summary, slide-level RCA, action plans and export-ready presentation output.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3>Prototype mode</h3>
+                <p>Use weekly and monthly sample views to review layout and graph behavior instantly.</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="toggle-group">
+                <button id="weeklyBtn" class="toggle-btn active" onclick="setViewMode('weekly')">Weekly View</button>
+                <button id="monthlyBtn" class="toggle-btn" onclick="setViewMode('monthly')">Monthly View</button>
+              </div>
+              <p class="small-note" id="fileStatusText">Demo workbook loaded by default. Upload your Excel to replace it.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-grid" id="kpiSnapshot"></div>
+      </section>
+
+      <section id="template" class="section-space">
+        <div class="template-grid">
+          <div class="light-card">
+            <div class="card-header">
+              <div>
+                <h3>Final Excel template design</h3>
+                <p>Use this structure for real uploads. Comparison against previous periods is calculated automatically from the uploaded time series.</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="upload-zone">
+                <h4>Recommended workbook structure</h4>
+                <p>
+                  Sheet 1: Data_Input<br>
+                  Sheet 2: Metric_Settings<br>
+                  Sheet 3: Instructions / Dropdown_Values
+                </p>
+              </div>
+
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Period</th>
+                      <th>Metric</th>
+                      <th>LOB</th>
+                      <th>Channel</th>
+                      <th>Site</th>
+                      <th>Team</th>
+                      <th>Actual</th>
+                      <th>Target</th>
+                      <th>Forecast</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dataInputTable"></tbody>
+                </table>
+              </div>
+
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th>Metric Group</th>
+                      <th>Unit</th>
+                      <th>Higher is Better</th>
+                      <th>Preferred Chart Type</th>
+                      <th>Include in Deck Default</th>
+                    </tr>
+                  </thead>
+                  <tbody id="metricSettingsTable"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3>Template rules</h3>
+                <p>Rules designed for a large audience and flexible KPI usage.</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="summary-list">
+                <div class="summary-item">✅ Data_Input stores time-series rows only</div>
+                <div class="summary-item">✅ Metric_Settings stores KPI logic once, not repeated in every row</div>
+                <div class="summary-item">✅ Unknown KPIs are allowed as long as settings are provided</div>
+                <div class="summary-item">✅ LOB, Channel, Site and Team are optional but supported</div>
+                <div class="summary-item">✅ Forecast stays hidden where values are unavailable</div>
+                <div class="summary-item">✅ Previous comparison is derived internally from the prior period, no extra column needed</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="validation" class="section-space">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>Validation and dataset detection</h3>
+              <p>Tool detects metrics and dimensions before entering chart studio.</p>
+            </div>
+            <div>
+              <span class="status-ok" id="validationStatus">Ready</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="mini-grid">
+              <div class="validation-list" id="validationLeft"></div>
+              <div class="validation-list" id="validationRight"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="suggestions" class="section-space">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>Recommended chart suggestions</h3>
+              <p>Suggestions use uploaded settings, available dimensions and actual data shape rather than forcing one fixed chart type.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="suggestion-grid" id="suggestionGrid"></div>
+
+            <div class="filters-grid">
+              <div class="field">
+                <label>Metric</label>
+                <select id="metricSelect"></select>
+              </div>
+              <div class="field">
+                <label>Build Mode</label>
+                <select id="buildModeSelect">
+                  <option value="overall">Overall</option>
+                  <option value="filter">Filter One View</option>
+                  <option value="compare">Compare by Dimension</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Dimension</label>
+                <select id="dimensionSelect"></select>
+              </div>
+              <div class="field">
+                <label>Value</label>
+                <select id="dimensionValueSelect"></select>
+              </div>
+              <div class="field">
+                <label>Chart Decision</label>
+                <select id="chartDecisionSelect">
+                  <option value="auto">Accept Suggestion</option>
+                  <option value="manual">Override Manually</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="studio" class="section-space">
+        <div class="studio">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3>Metrics</h3>
+                <p>Fixed and dynamic KPIs detected from the uploaded workbook.</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="metric-list" id="metricList"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-body chart-wrap">
+              <div class="chart-top">
+                <div class="chart-title">
+                  <h3 id="chartTitle">SLA Trend</h3>
+                  <p id="chartSubtitle">Weekly performance trend with actual and target view</p>
+                </div>
+                <div class="toggle-group">
+                  <button id="modeWeeklyStudio" class="toggle-btn active" onclick="setViewMode('weekly')">Weekly</button>
+                  <button id="modeMonthlyStudio" class="toggle-btn" onclick="setViewMode('monthly')">Monthly</button>
+                </div>
+              </div>
+
+              <div class="chart-canvas-holder">
+                <canvas id="mainChart"></canvas>
+              </div>
+
+              <div class="insights-grid">
+                <div class="insight-box">
+                  <h4>Highlights</h4>
+                  <ul id="highlightsList"></ul>
+                </div>
+                <div class="insight-box">
+                  <h4>What went wrong / RCA</h4>
+                  <ul id="rcaList"></ul>
+                </div>
+                <div class="insight-box">
+                  <h4>Action Plan</h4>
+                  <ul id="actionList"></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3>Chart settings</h3>
+                <p>Overall, filtered and comparison use cases.</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="field">
+                <label>Chart Type</label>
+                <select id="chartTypeSelect"></select>
+              </div>
+
+              <div class="field" style="margin-top:12px;">
+                <label>Breakdown Mode</label>
+                <select id="breakdownModeSelect">
+                  <option value="overall">Overall</option>
+                  <option value="filter">Filter View</option>
+                  <option value="compare">Compare by Dimension</option>
+                </select>
+              </div>
+
+              <div class="field" style="margin-top:12px;">
+                <label>LOB</label>
+                <select id="lobFilter"></select>
+              </div>
+
+              <div class="field" style="margin-top:12px;">
+                <label>Channel</label>
+                <select id="channelFilter"></select>
+              </div>
+
+              <div class="field" style="margin-top:12px;">
+                <label>Site</label>
+                <select id="siteFilter"></select>
+              </div>
+
+              <div class="field" style="margin-top:12px;">
+                <label>Team</label>
+                <select id="teamFilter"></select>
+              </div>
+
+              <div class="field" style="margin-top:12px;">
+                <label>Slide Title</label>
+                <input type="text" id="slideTitleInput" value="" />
+              </div>
+
+              <div class="field" style="margin-top:12px;">
+                <label>Summary Blocks</label>
+                <select id="summaryBlocksSelect">
+                  <option value="all">Show All</option>
+                  <option value="no-highlights">Hide Highlights</option>
+                  <option value="no-rca">Hide RCA</option>
+                  <option value="no-actions">Hide Action Plan</option>
+                </select>
+              </div>
+
+              <div class="field" style="margin-top:12px;">
+                <label>Presentation Theme</label>
+                <select>
+                  <option>Stratos Dark</option>
+                  <option>Executive Blue</option>
+                  <option>Client Light</option>
+                </select>
+              </div>
+
+              <p class="small-note">Unknown KPIs still generate charts if Metric_Settings provides unit, direction and chart logic.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="executive" class="section-space">
+        <div class="exec-grid">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3>Executive summary slide</h3>
+                <p>Summarizes all selected slides without replacing slide-level insights and RCA.</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="exec-section">
+                <h4>Overall Performance</h4>
+                <p id="execOverall"></p>
+              </div>
+              <div class="exec-section">
+                <h4>Key Achievements</h4>
+                <ul id="execAchievements"></ul>
+              </div>
+              <div class="exec-section">
+                <h4>Key Risks</h4>
+                <ul id="execRisks"></ul>
+              </div>
+              <div class="exec-section">
+                <h4>Priority Actions</h4>
+                <ul id="execActions"></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3>KPI snapshot</h3>
+                <p>Leadership snapshot from the currently active view.</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="kpi-grid" style="grid-template-columns:1fr; margin-bottom:0;" id="execSnapshot"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="export" class="section-space">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>Export options</h3>
+              <p>Output supports both leadership reviews and detailed operational analysis.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="export-grid">
+              <div class="export-card">
+                <h4>PowerPoint Deck</h4>
+                <p>Includes title slide, executive summary, KPI snapshot, chart slides, summaries, RCA and action plans.</p>
+                <button class="btn btn-primary" onclick="fakeExport('PowerPoint deck')">Export PPT</button>
+              </div>
+              <div class="export-card">
+                <h4>PDF Report</h4>
+                <p>Static report for circulation with the same charts, commentary and summary logic.</p>
+                <button class="btn btn-secondary" onclick="fakeExport('PDF report')">Export PDF</button>
+              </div>
+              <div class="export-card">
+                <h4>Segmented Pack</h4>
+                <p>Useful when users want one slide per channel, one slide per LOB or one slide per site for the same KPI.</p>
+                <button class="btn btn-secondary" onclick="fakeExport('Segmented slide pack')">Export Segmented Pack</button>
+              </div>
+            </div>
+            <p class="small-note">This prototype focuses on upload, validation, dynamic KPI logic, charting, filtering and summaries. Export buttons are placeholders for the next build step.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const state = {
+      rawRows: [],
+      metricSettings: {},
+      metrics: [],
+      dimensions: ['LOB', 'Channel', 'Site', 'Team'],
+      currentMode: 'weekly',
+      currentMetric: null,
+      chart: null
+    };
+
+    const demoWorkbook = buildDemoWorkbook();
+
+    function buildDemoWorkbook() {
+      const data = [
+        ['Date','Period','Metric','LOB','Channel','Site','Team','Actual','Target','Forecast'],
+        ['2026-01-05','Week 1','SLA','Support','Voice','KL','Team A',88,85,86],
+        ['2026-01-12','Week 2','SLA','Support','Voice','KL','Team A',90,85,87],
+        ['2026-01-19','Week 3','SLA','Support','Voice','KL','Team A',87,85,''],
+        ['2026-01-26','Week 4','SLA','Support','Voice','KL','Team A',91,85,''],
+        ['2026-02-02','Week 5','SLA','Support','Voice','KL','Team A',89,85,88],
+        ['2026-02-09','Week 6','SLA','Support','Voice','KL','Team A',92,85,89],
+        ['2026-02-16','Week 7','SLA','Support','Voice','KL','Team A',90,85,89],
+        ['2026-02-23','Week 8','SLA','Support','Voice','KL','Team A',91,85,90],
+
+        ['2026-01-05','Week 1','SLA','Support','Email','KL','Team A',92,85,87],
+        ['2026-01-12','Week 2','SLA','Support','Email','KL','Team A',91,85,88],
+        ['2026-01-19','Week 3','SLA','Support','Email','KL','Team A',93,85,89],
+        ['2026-01-26','Week 4','SLA','Support','Email','KL','Team A',94,85,90],
+        ['2026-02-02','Week 5','SLA','Support','Email','KL','Team A',93,85,90],
+        ['2026-02-09','Week 6','SLA','Support','Email','KL','Team A',95,85,91],
+        ['2026-02-16','Week 7','SLA','Support','Email','KL','Team A',94,85,91],
+        ['2026-02-23','Week 8','SLA','Support','Email','KL','Team A',95,85,92],
+
+        ['2026-01-05','Week 1','AHT','Support','Voice','KL','Team A',560,540,''],
+        ['2026-01-12','Week 2','AHT','Support','Voice','KL','Team A',552,540,''],
+        ['2026-01-19','Week 3','AHT','Support','Voice','KL','Team A',548,540,''],
+        ['2026-01-26','Week 4','AHT','Support','Voice','KL','Team A',541,540,''],
+        ['2026-02-02','Week 5','AHT','Support','Voice','KL','Team A',548,540,''],
+        ['2026-02-09','Week 6','AHT','Support','Voice','KL','Team A',534,540,''],
+        ['2026-02-16','Week 7','AHT','Support','Voice','KL','Team A',527,540,''],
+        ['2026-02-23','Week 8','AHT','Support','Voice','KL','Team A',521,540,''],
+
+        ['2026-01-05','Week 1','QA','Support','Chat','KL','Team A',94,93,''],
+        ['2026-01-12','Week 2','QA','Support','Chat','KL','Team A',95,93,''],
+        ['2026-01-19','Week 3','QA','Support','Chat','KL','Team A',93,93,''],
+        ['2026-01-26','Week 4','QA','Support','Chat','KL','Team A',96,93,''],
+        ['2026-02-02','Week 5','QA','Support','Chat','KL','Team A',95,93,''],
+        ['2026-02-09','Week 6','QA','Support','Chat','KL','Team A',96,93,''],
+        ['2026-02-16','Week 7','QA','Support','Chat','KL','Team A',97,93,''],
+        ['2026-02-23','Week 8','QA','Support','Chat','KL','Team A',95,93,''],
+
+        ['2026-01-05','Week 1','Volume','Support','Voice','KL','Team A',12100,'',12000],
+        ['2026-01-12','Week 2','Volume','Support','Voice','KL','Team A',12420,'',12300],
+        ['2026-01-19','Week 3','Volume','Support','Voice','KL','Team A',11980,'',12120],
+        ['2026-01-26','Week 4','Volume','Support','Voice','KL','Team A',12610,'',12400],
+        ['2026-02-02','Week 5','Volume','Support','Voice','KL','Team A',12880,'',12700],
+        ['2026-02-09','Week 6','Volume','Support','Voice','KL','Team A',12540,'',12600],
+        ['2026-02-16','Week 7','Volume','Support','Voice','KL','Team A',12720,'',12650],
+        ['2026-02-23','Week 8','Volume','Support','Voice','KL','Team A',12920,'',12650],
+
+        ['2026-01-05','Week 1','Response Rate','Support','Email','KL','Team A',91,89,''],
+        ['2026-01-12','Week 2','Response Rate','Support','Email','KL','Team A',92,89,''],
+        ['2026-01-19','Week 3','Response Rate','Support','Email','KL','Team A',90,89,''],
+        ['2026-01-26','Week 4','Response Rate','Support','Email','KL','Team A',91,89,''],
+        ['2026-02-02','Week 5','Response Rate','Support','Email','KL','Team A',93,89,''],
+        ['2026-02-09','Week 6','Response Rate','Support','Email','KL','Team A',92,89,''],
+        ['2026-02-16','Week 7','Response Rate','Support','Email','KL','Team A',94,89,''],
+        ['2026-02-23','Week 8','Response Rate','Support','Email','KL','Team A',93,89,'']
+      ];
+
+      const settings = [
+        ['Metric','Metric Group','Unit','Higher is Better','Preferred Chart Type','Include in Deck Default'],
+        ['SLA','Service','%','Yes','Line','Yes'],
+        ['AHT','Efficiency','Sec','No','Line','Yes'],
+        ['QA','Effectiveness','%','Yes','Bar','Yes'],
+        ['Volume','Demand','','Yes','Line','Yes'],
+        ['Response Rate','Service','%','Yes','Line','Yes']
+      ];
+
+      return { data, settings };
+    }
+
+    function renderDemoTables() {
+      const dataBody = document.getElementById('dataInputTable');
+      dataBody.innerHTML = '';
+      demoWorkbook.data.slice(1, 6).forEach(row => {
+        const tr = document.createElement('tr');
+        [0,1,2,3,4,5,6,7,8,9].forEach(idx => {
+          const td = document.createElement('td');
+          td.textContent = row[idx] ?? '';
+          tr.appendChild(td);
+        });
+        dataBody.appendChild(tr);
+      });
+
+      const settingsBody = document.getElementById('metricSettingsTable');
+      settingsBody.innerHTML = '';
+      demoWorkbook.settings.slice(1).forEach(row => {
+        const tr = document.createElement('tr');
+        row.forEach(cell => {
+          const td = document.createElement('td');
+          td.textContent = cell ?? '';
+          tr.appendChild(td);
+        });
+        settingsBody.appendChild(tr);
+      });
+    }
+
+    function scrollToSection(id){
+      document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+
+    function normalizeString(v) {
+      return String(v ?? '').trim();
+    }
+
+    function parseBool(value) {
+      const v = normalizeString(value).toLowerCase();
+      return v === 'yes' || v === 'true' || v === '1';
+    }
+
+    function parseNumber(value) {
+      if (value === null || value === undefined || value === '') return null;
+      const n = Number(String(value).replace(/,/g, ''));
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function toDateValue(v) {
+      if (!v) return null;
+      const d = new Date(v);
+      return Number.isNaN(d.getTime()) ? null : d;
+    }
+
+    function loadWorkbook(dataRows, settingRows, sourceName) {
+      const requiredDataCols = ['Date','Period','Metric','Actual'];
+      const requiredSettingCols = ['Metric','Metric Group','Unit','Higher is Better','Preferred Chart Type','Include in Deck Default'];
+
+      const dataObjects = rowsToObjects(dataRows);
+      const settingObjects = rowsToObjects(settingRows);
+      const dataCols = Object.keys(dataObjects[0] || {});
+      const settingsCols = Object.keys(settingObjects[0] || {});
+
+      const missingData = requiredDataCols.filter(c => !dataCols.includes(c));
+      const missingSettings = requiredSettingCols.filter(c => !settingsCols.includes(c));
+
+      if (missingData.length || missingSettings.length) {
+        document.getElementById('validationStatus').textContent = 'Needs attention';
+        document.getElementById('validationStatus').className = 'status-warn';
+        const left = document.getElementById('validationLeft');
+        const right = document.getElementById('validationRight');
+        left.innerHTML = `<div class="validation-item"><span class="down">●</span>Missing Data_Input columns: ${missingData.join(', ') || 'None'}</div>`;
+        right.innerHTML = `<div class="validation-item"><span class="down">●</span>Missing Metric_Settings columns: ${missingSettings.join(', ') || 'None'}</div>`;
+        throw new Error('Workbook structure is incomplete.');
+      }
+
+      const filteredRows = dataObjects
+        .map(r => ({
+          Date: normalizeString(r.Date),
+          Period: normalizeString(r.Period),
+          Metric: normalizeString(r.Metric),
+          LOB: normalizeString(r.LOB),
+          Channel: normalizeString(r.Channel),
+          Site: normalizeString(r.Site),
+          Team: normalizeString(r.Team),
+          Actual: parseNumber(r.Actual),
+          Target: parseNumber(r.Target),
+          Forecast: parseNumber(r.Forecast)
+        }))
+        .filter(r => r.Metric && (r.Date || r.Period) && r.Actual !== null);
+
+      const settingsMap = {};
+      settingObjects.forEach(r => {
+        const metric = normalizeString(r.Metric);
+        if (!metric) return;
+        settingsMap[metric] = {
+          metricGroup: normalizeString(r['Metric Group']) || 'General',
+          unit: normalizeString(r.Unit),
+          higherIsBetter: parseBool(r['Higher is Better']),
+          preferredChartType: normalizeString(r['Preferred Chart Type']) || 'Line',
+          includeDefault: parseBool(r['Include in Deck Default'])
+        };
+      });
+
+      const metrics = [...new Set(filteredRows.map(r => r.Metric))].filter(m => settingsMap[m] ? settingsMap[m].includeDefault : true);
+      state.rawRows = filteredRows;
+      state.metricSettings = settingsMap;
+      state.metrics = metrics;
+      state.currentMetric = metrics[0] || null;
+
+      document.getElementById('fileStatusText').textContent = `${sourceName} loaded. ${filteredRows.length} usable rows detected.`;
+      document.getElementById('validationStatus').textContent = 'Validated';
+      document.getElementById('validationStatus').className = 'status-ok';
+
+      renderValidation();
+      populateControls();
+      renderMetricList();
+      renderSuggestions();
+      renderChart();
+      renderSnapshots();
+      renderExecutiveSummary();
+    }
+
+    function rowsToObjects(rows) {
+      if (!rows || !rows.length) return [];
+      return rows.map(row => {
+        const obj = {};
+        Object.keys(row).forEach(k => {
+          obj[String(k).trim()] = row[k];
+        });
+        return obj;
+      });
+    }
+
+    function renderValidation() {
+      const left = document.getElementById('validationLeft');
+      const right = document.getElementById('validationRight');
+      const metricsText = state.metrics.join(', ') || 'None';
+      const dimsFound = state.dimensions.filter(dim => state.rawRows.some(r => normalizeString(r[dim])));
+      const forecastMissingCount = state.rawRows.filter(r => r.Forecast === null).length;
+      const targetMissingCount = state.rawRows.filter(r => r.Target === null).length;
+
+      left.innerHTML = `
+        <div class="validation-item"><span class="up">●</span>${state.metrics.length} metrics detected: ${metricsText}</div>
+        <div class="validation-item"><span class="up">●</span>Dimensions detected: ${dimsFound.join(', ') || 'No optional dimensions found'}</div>
+        <div class="validation-item"><span class="up">●</span>${state.rawRows.length} usable performance rows loaded</div>
+        <div class="validation-item"><span class="warn">●</span>${forecastMissingCount} rows have no forecast and will hide forecast visuals</div>
+        <div class="validation-item"><span class="warn">●</span>${targetMissingCount} rows have no target and will hide target lines</div>
+      `;
+
+      right.innerHTML = `
+        <div class="validation-item"><span class="up">●</span>Smart chart suggestion engine ready</div>
+        <div class="validation-item"><span class="up">●</span>Overall, filtered and comparison modes enabled</div>
+        <div class="validation-item"><span class="up">●</span>Previous comparison will be derived internally from prior periods</div>
+        <div class="validation-item"><span class="up">●</span>Dynamic custom KPI support active through Metric_Settings</div>
+        <div class="validation-item"><span class="up">●</span>Executive summary and slide-level commentary enabled</div>
+      `;
+    }
+
+    function populateControls() {
+      fillSelect('metricSelect', state.metrics, state.currentMetric);
+      fillSelect('dimensionSelect', ['Channel','LOB','Site','Team'], document.getElementById('dimensionSelect').value || 'Channel');
+      fillDimensionValueSelect();
+      fillFilterSelect('lobFilter', 'LOB');
+      fillFilterSelect('channelFilter', 'Channel');
+      fillFilterSelect('siteFilter', 'Site');
+      fillFilterSelect('teamFilter', 'Team');
+      populateChartTypeSelect();
+      syncStudioControls();
+    }
+
+    function fillSelect(id, options, selected) {
+      const el = document.getElementById(id);
+      el.innerHTML = '';
+      options.forEach(value => {
+        const opt = document.createElement('option');
+        opt.value = value;
+        opt.textContent = value;
+        if (value === selected) opt.selected = true;
+        el.appendChild(opt);
+      });
+    }
+
+    function fillFilterSelect(id, field) {
+      const values = [...new Set(state.rawRows.map(r => normalizeString(r[field])).filter(Boolean))];
+      const el = document.getElementById(id);
+      const current = el.value || 'All';
+      el.innerHTML = '';
+      ['All', ...values].forEach(value => {
+        const opt = document.createElement('option');
+        opt.value = value;
+        opt.textContent = value;
+        if (value === current) opt.selected = true;
+        el.appendChild(opt);
+      });
+    }
+
+    function fillDimensionValueSelect() {
+      const dimension = document.getElementById('dimensionSelect').value || 'Channel';
+      const values = [...new Set(state.rawRows.map(r => normalizeString(r[dimension])).filter(Boolean))];
+      fillSelect('dimensionValueSelect', ['All', ...values], 'All');
+    }
+
+    function populateChartTypeSelect() {
+      const metric = state.currentMetric;
+      const preferred = state.metricSettings[metric]?.preferredChartType || 'Line';
+      fillSelect('chartTypeSelect', ['Auto Suggested','Line','Bar','Combo','Area','Clustered Bar'], 'Auto Suggested');
+      const notes = document.getElementById('slideTitleInput');
+      if (!notes.value) notes.value = `${metric} Performance Trend`;
+      document.getElementById('chartTypeSelect').dataset.preferred = preferred;
+    }
+
+    function renderMetricList() {
+      const list = document.getElementById('metricList');
+      list.innerHTML = '';
+      state.metrics.forEach(metric => {
+        const settings = state.metricSettings[metric] || {};
+        const item = document.createElement('div');
+        item.className = 'metric-item' + (metric === state.currentMetric ? ' active' : '');
+        item.innerHTML = `<h4>${metric}</h4><p>${settings.metricGroup || 'General'} KPI · ${settings.preferredChartType || 'Auto'} suggested</p>`;
+        item.onclick = () => {
+          state.currentMetric = metric;
+          document.getElementById('metricSelect').value = metric;
+          populateChartTypeSelect();
+          renderMetricList();
+          renderSuggestions();
+          renderChart();
+          renderSnapshots();
+          renderExecutiveSummary();
+        };
+        list.appendChild(item);
+      });
+    }
+
+    function suggestChart(metric) {
+      const settings = state.metricSettings[metric] || {};
+      const pref = (settings.preferredChartType || '').toLowerCase();
+      if (pref) return capitalize(pref);
+      return 'Line';
+    }
+
+    function renderSuggestions() {
+      const grid = document.getElementById('suggestionGrid');
+      grid.innerHTML = '';
+      state.metrics.slice(0, 6).forEach(metric => {
+        const suggested = suggestChart(metric);
+        const alt = suggested === 'Line' ? 'Bar' : 'Line';
+        const card = document.createElement('div');
+        card.className = 'suggestion-card';
+        card.innerHTML = `
+          <h4>${metric}</h4>
+          <p class="small-note">Suggested using Metric_Settings and the detected data shape for this KPI.</p>
+          <div class="pill-row">
+            <span class="pill">Suggested: ${suggested}</span>
+            <span class="pill">Alt: ${alt}</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function getFilteredRows(metric) {
+      let rows = state.rawRows.filter(r => r.Metric === metric);
+      const mode = document.getElementById('breakdownModeSelect').value;
+      const filters = {
+        LOB: document.getElementById('lobFilter').value,
+        Channel: document.getElementById('channelFilter').value,
+        Site: document.getElementById('siteFilter').value,
+        Team: document.getElementById('teamFilter').value
+      };
+
+      if (mode !== 'compare') {
+        Object.entries(filters).forEach(([field, value]) => {
+          if (value && value !== 'All') rows = rows.filter(r => normalizeString(r[field]) === value);
+        });
+      }
+      return rows;
+    }
+
+    function buildSeries(metric) {
+      const rows = getFilteredRows(metric);
+      const settings = state.metricSettings[metric] || { higherIsBetter: true, unit: '', preferredChartType: 'Line', metricGroup: 'General' };
+      const mode = document.getElementById('breakdownModeSelect').value;
+      const compareDimension = document.getElementById('dimensionSelect').value;
+      const compareValue = document.getElementById('dimensionValueSelect').value;
+      const rowsSorted = [...rows].sort(sortByPeriod);
+      const periods = [...new Set(rowsSorted.map(r => getPeriodLabel(r)))];
+      const targetMap = new Map();
+      const forecastMap = new Map();
+
+      rowsSorted.forEach(r => {
+        const label = getPeriodLabel(r);
+        if (!targetMap.has(label) && r.Target !== null) targetMap.set(label, r.Target);
+        if (!forecastMap.has(label) && r.Forecast !== null) forecastMap.set(label, r.Forecast);
+      });
+
+      let actualSeries = [];
+      if (mode === 'compare') {
+        const groups = compareValue === 'All'
+          ? [...new Set(rowsSorted.map(r => normalizeString(r[compareDimension])).filter(Boolean))]
+          : [compareValue];
+        actualSeries = groups.map(group => {
+          const groupRows = rowsSorted.filter(r => normalizeString(r[compareDimension]) === group);
+          const values = periods.map(period => {
+            const found = groupRows.find(r => getPeriodLabel(r) === period);
+            return found ? found.Actual : null;
+          });
+          return { label: group || compareDimension, values };
+        });
+      } else {
+        actualSeries = [{
+          label: 'Actual',
+          values: periods.map(period => {
+            const periodRows = rowsSorted.filter(r => getPeriodLabel(r) === period);
+            if (!periodRows.length) return null;
+            const total = periodRows.reduce((sum, r) => sum + (r.Actual || 0), 0);
+            return round2(total / periodRows.length);
+          })
+        }];
+      }
+
+      const target = periods.map(p => targetMap.has(p) ? targetMap.get(p) : null);
+      const forecast = periods.map(p => forecastMap.has(p) ? forecastMap.get(p) : null);
+      return { periods, actualSeries, target, forecast, settings };
+    }
+
+    function sortByPeriod(a, b) {
+      const ad = toDateValue(a.Date);
+      const bd = toDateValue(b.Date);
+      if (ad && bd) return ad - bd;
+      return normalizeString(a.Period).localeCompare(normalizeString(b.Period), undefined, { numeric: true });
+    }
+
+    function getPeriodLabel(row) {
+      if (state.currentMode === 'monthly' && row.Date) {
+        const d = toDateValue(row.Date);
+        if (d) return d.toLocaleString('en-US', { month: 'short' });
+      }
+      if (state.currentMode === 'weekly' && row.Period) return row.Period.replace('Week ', 'W');
+      return row.Period || row.Date;
+    }
+
+    function buildChartTitle(metric) {
+      const mode = document.getElementById('breakdownModeSelect').value;
+      const dimension = document.getElementById('dimensionSelect').value;
+      if (mode === 'compare') return `${metric} Comparison by ${dimension}`;
+      return `${metric} Trend`;
+    }
+
+    function buildChartSubtitle(metric, settings) {
+      const mode = document.getElementById('breakdownModeSelect').value;
+      const dimension = document.getElementById('dimensionSelect').value;
+      const parts = [];
+      parts.push(state.currentMode === 'weekly' ? 'Weekly' : 'Monthly');
+      if (mode === 'compare') parts.push(`comparison by ${dimension.toLowerCase()}`);
+      else parts.push('performance trend');
+      parts.push(settings.higherIsBetter ? 'higher is better' : 'lower is better');
+      return parts.join(' · ');
+    }
+
+    function getArrowInfo(actualValue, targetValue, previousValue, higherIsBetter) {
+      let compareValue = null;
+      if (targetValue !== null && targetValue !== undefined) compareValue = targetValue;
+      else if (previousValue !== null && previousValue !== undefined) compareValue = previousValue;
+      if (compareValue === null) return null;
+      const isGood = higherIsBetter ? actualValue >= compareValue : actualValue <= compareValue;
+      const directionUp = actualValue >= compareValue;
+      return { arrow: directionUp ? '▲' : '▼', color: isGood ? '#22c55e' : '#ef4444' };
+    }
+
+    const arrowPlugin = {
+      id: 'arrowPlugin',
+      afterDatasetsDraw(chart) {
+        const mode = document.getElementById('breakdownModeSelect').value;
+        if (mode === 'compare') return;
+        const metric = state.currentMetric;
+        const { actualSeries, target, settings } = buildSeries(metric);
+        const actual = actualSeries[0]?.values || [];
+        const previous = actual.map((_, i) => i > 0 ? actual[i - 1] : null);
+        const meta = chart.getDatasetMeta(0);
+        const { ctx } = chart;
+        ctx.save();
+        ctx.font = 'bold 14px Inter, Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        meta.data.forEach((point, index) => {
+          const info = getArrowInfo(actual[index], target[index], previous[index], settings.higherIsBetter);
+          if (!info || actual[index] === null) return;
+          ctx.fillStyle = info.color;
+          ctx.fillText(info.arrow, point.x, point.y - 16);
+        });
+        ctx.restore();
+      }
+    };
+
+    function renderChart() {
+      if (!state.currentMetric) return;
+      const { periods, actualSeries, target, forecast, settings } = buildSeries(state.currentMetric);
+      document.getElementById('chartTitle').textContent = buildChartTitle(state.currentMetric);
+      document.getElementById('chartSubtitle').textContent = buildChartSubtitle(state.currentMetric, settings);
+      document.getElementById('slideTitleInput').value = buildChartTitle(state.currentMetric);
+
+      const ctx = document.getElementById('mainChart').getContext('2d');
+      if (state.chart) state.chart.destroy();
+
+      const chosenType = document.getElementById('chartTypeSelect').value;
+      const baseType = chosenType === 'Auto Suggested' ? suggestChart(state.currentMetric) : chosenType;
+      const chartType = ['Bar', 'Clustered Bar'].includes(baseType) ? 'bar' : 'line';
+
+      const colors = ['#38bdf8','#14b8a6','#8b5cf6','#f59e0b','#ef4444','#22c55e'];
+      const datasets = actualSeries.map((series, index) => ({
+        label: series.label,
+        data: series.values,
+        borderColor: colors[index % colors.length],
+        backgroundColor: chartType === 'bar' ? withAlpha(colors[index % colors.length], 0.6) : withAlpha(colors[index % colors.length], 0.18),
+        pointBackgroundColor: colors[index % colors.length],
+        pointBorderColor: colors[index % colors.length],
+        pointRadius: 4,
+        pointHoverRadius: 5,
+        borderWidth: 3,
+        tension: 0.35,
+        fill: chartType === 'line' && actualSeries.length === 1
+      }));
+
+      if (actualSeries.length === 1 && target.some(v => v !== null)) {
+        datasets.push({
+          label: 'Target',
+          data: target,
+          borderColor: '#f59e0b',
+          backgroundColor: 'rgba(245,158,11,0.15)',
+          pointBackgroundColor: '#f59e0b',
+          pointBorderColor: '#f59e0b',
+          pointRadius: 3,
+          borderWidth: 2,
+          borderDash: [6,6],
+          tension: 0.2,
+          fill: false,
+          type: 'line'
+        });
+      }
+
+      if (actualSeries.length === 1 && forecast.some(v => v !== null)) {
+        datasets.push({
+          label: 'Forecast',
+          data: forecast,
+          borderColor: '#8b5cf6',
+          backgroundColor: 'rgba(139,92,246,0.12)',
+          pointBackgroundColor: '#8b5cf6',
+          pointBorderColor: '#8b5cf6',
+          pointRadius: 3,
+          borderWidth: 2,
+          tension: 0.25,
+          fill: false,
+          type: 'line'
+        });
+      }
+
+      state.chart = new Chart(ctx, {
+        type: chartType,
+        data: { labels: periods, datasets },
+        plugins: [arrowPlugin],
+        options: {
+          maintainAspectRatio: false,
+          responsive: true,
+          layout: { padding: { top: 28, right: 12, bottom: 8, left: 8 } },
+          plugins: {
+            legend: {
+              labels: { color: '#dce7fa', boxWidth: 14, font: { size: 12, weight: '700' } }
+            },
+            tooltip: {
+              backgroundColor: '#0f172a',
+              titleColor: '#fff',
+              bodyColor: '#dbe9ff',
+              borderColor: 'rgba(255,255,255,.1)',
+              borderWidth: 1
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
+              grid: { color: 'rgba(255,255,255,.06)' },
+              border: { display: true, color: 'rgba(255,255,255,.22)', width: 2 },
+              title: { display: true, text: 'Reporting Period', color: '#eef4ff', font: { size: 13, weight: '800' } }
+            },
+            y: {
+              ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
+              grid: { color: 'rgba(255,255,255,.08)' },
+              border: { display: true, color: 'rgba(255,255,255,.28)', width: 2 },
+              title: { display: true, text: settings.unit ? `Metric Value (${settings.unit})` : 'Metric Value', color: '#eef4ff', font: { size: 13, weight: '800' } }
+            }
+          }
+        }
+      });
+
+      renderInsights(periods, actualSeries, target, settings);
+    }
+
+    function renderInsights(periods, actualSeries, target, settings) {
+      const summaryMode = document.getElementById('summaryBlocksSelect').value;
+      const highlights = [];
+      const rca = [];
+      const actions = [];
+      const mainSeries = actualSeries[0]?.values || [];
+      const latest = lastNonNull(mainSeries);
+      const previous = previousNonNull(mainSeries);
+      const targetLatest = lastNonNull(target);
+
+      if (actualSeries.length > 1) {
+        highlights.push(`Comparison view is showing ${actualSeries.length} series for the selected dimension.`);
+        const bestSeries = actualSeries
+          .map(s => ({ label: s.label, latest: lastNonNull(s.values) }))
+          .filter(s => s.latest !== null)
+          .sort((a,b) => settings.higherIsBetter ? b.latest - a.latest : a.latest - b.latest)[0];
+        if (bestSeries) highlights.push(`${bestSeries.label} is currently the strongest visible segment.`);
+        rca.push('Differences between segments suggest that one overall graph may hide team or channel-level variation.');
+        actions.push('Use segmented slides when leadership needs a separate view by channel or LOB.');
+      } else {
+        if (latest !== null && previous !== null) {
+          const diff = round2(latest - previous);
+          const improved = settings.higherIsBetter ? diff >= 0 : diff <= 0;
+          highlights.push(`${state.currentMetric} ${improved ? 'improved' : 'declined'} by ${Math.abs(diff)}${settings.unit || ''} versus the prior visible period.`);
+        }
+        if (targetLatest !== null && latest !== null) {
+          const onTrack = settings.higherIsBetter ? latest >= targetLatest : latest <= targetLatest;
+          highlights.push(`${state.currentMetric} is currently ${onTrack ? 'meeting' : 'missing'} target.`);
+          if (!onTrack) rca.push(`Latest result is outside target and should be reviewed with staffing, process or demand context.`);
+        }
+        if (target.every(v => v === null)) {
+          rca.push('No target values are available, so the graph uses trend-based interpretation only.');
+        }
+        if (mainSeries.filter(v => v !== null).length > 2) {
+          const min = Math.min(...mainSeries.filter(v => v !== null));
+          const max = Math.max(...mainSeries.filter(v => v !== null));
+          highlights.push(`Observed range across the visible period is ${min}${settings.unit || ''} to ${max}${settings.unit || ''}.`);
+        }
+        actions.push('Review the latest period with the selected filters before export.');
+        actions.push('Keep chart type on Auto Suggested unless the storytelling need is different.');
+      }
+
+      if (document.getElementById('lobFilter').value !== 'All' || document.getElementById('channelFilter').value !== 'All' || document.getElementById('siteFilter').value !== 'All' || document.getElementById('teamFilter').value !== 'All') {
+        highlights.push('The current chart is filtered, so insights apply only to the visible selection.');
+      }
+
+      setList('highlightsList', summaryMode === 'no-highlights' ? [] : dedupe(highlights).slice(0, 3));
+      setList('rcaList', summaryMode === 'no-rca' ? [] : dedupe(rca.length ? rca : ['No major RCA issue detected in the visible view.']).slice(0, 3));
+      setList('actionList', summaryMode === 'no-actions' ? [] : dedupe(actions).slice(0, 3));
+    }
+
+    function renderSnapshots() {
+      const metricCards = state.metrics.slice(0,4).map(metric => {
+        const { actualSeries, target, settings } = buildSeries(metric);
+        const latest = lastNonNull(actualSeries[0]?.values || []);
+        const compare = lastNonNull(target);
+        const prev = previousNonNull(actualSeries[0]?.values || []);
+        const arrow = getArrowInfo(latest, compare, prev, settings.higherIsBetter);
+        return {
+          metric,
+          latest,
+          unit: settings.unit,
+          arrow: arrow?.arrow || '',
+          colorClass: arrow ? (arrow.color === '#22c55e' ? 'up' : 'down') : '',
+          text: compare !== null ? `Target ${compare}${settings.unit || ''}` : 'Trend based KPI'
+        };
+      });
+
+      const top = document.getElementById('kpiSnapshot');
+      const exec = document.getElementById('execSnapshot');
+      top.innerHTML = '';
+      exec.innerHTML = '';
+      metricCards.forEach(card => {
+        const html = `<div class="kpi-light"><div class="kpi-label">${card.metric}</div><div class="kpi-value">${card.latest ?? '-'}${card.unit || ''} <span class="${card.colorClass}">${card.arrow}</span></div><div class="kpi-sub">${card.text}</div></div>`;
+        top.insertAdjacentHTML('beforeend', html);
+        exec.insertAdjacentHTML('beforeend', html);
+      });
+    }
+
+    function renderExecutiveSummary() {
+      const overall = document.getElementById('execOverall');
+      const achievements = document.getElementById('execAchievements');
+      const risks = document.getElementById('execRisks');
+      const actions = document.getElementById('execActions');
+
+      const current = state.currentMetric;
+      if (!current) return;
+      const { actualSeries, target, settings } = buildSeries(current);
+      const latest = lastNonNull(actualSeries[0]?.values || []);
+      const prev = previousNonNull(actualSeries[0]?.values || []);
+      const targetLatest = lastNonNull(target);
+      const compareMode = document.getElementById('breakdownModeSelect').value === 'compare';
+
+      const good = targetLatest !== null ? (settings.higherIsBetter ? latest >= targetLatest : latest <= targetLatest) : true;
+      overall.textContent = `${current} is currently ${good ? 'performing in line with expectations' : 'showing pressure versus target'} in the selected ${state.currentMode} view. The dashboard is also ready to support dynamic KPI storytelling, filtered analysis, and segmented comparisons when needed.`;
+
+      setList('execAchievements', [
+        `${current} ${prev !== null ? ((settings.higherIsBetter ? latest >= prev : latest <= prev) ? 'improved' : 'changed') + ' against the prior visible period' : 'has enough history for a trend view'}.`,
+        compareMode ? 'The comparison view highlights segment-level differences without needing a separate workbook.' : 'The current chart view is ready for a clean leadership slide.',
+        'Optional values such as forecast are shown only when present in the uploaded file.'
+      ]);
+
+      setList('execRisks', [
+        targetLatest !== null && !good ? `${current} is outside target in the current view.` : 'No severe target breach is visible in the current view.',
+        compareMode ? 'Segment differences may require separate ownership by channel, team, or LOB.' : 'One overall view may still hide operational variance inside channels or teams.',
+        'Unknown KPIs rely on generic commentary unless richer KPI rules are configured later.'
+      ]);
+
+      setList('execActions', [
+        'Review filtered or segmented views before exporting leadership slides.',
+        'Use compare mode when overall performance hides channel-level differences.',
+        'Keep Metric_Settings updated so custom KPIs get the correct direction, units and chart suggestions.'
+      ]);
+    }
+
+    function setList(id, items) {
+      const el = document.getElementById(id);
+      el.innerHTML = '';
+      items.forEach(text => {
+        const li = document.createElement('li');
+        li.textContent = text;
+        el.appendChild(li);
+      });
+    }
+
+    function dedupe(arr) {
+      return [...new Set(arr.filter(Boolean))];
+    }
+
+    function lastNonNull(arr) {
+      const valid = arr.filter(v => v !== null && v !== undefined);
+      return valid.length ? valid[valid.length - 1] : null;
+    }
+
+    function previousNonNull(arr) {
+      const valid = arr.filter(v => v !== null && v !== undefined);
+      return valid.length > 1 ? valid[valid.length - 2] : null;
+    }
+
+    function round2(n) {
+      return Math.round(n * 100) / 100;
+    }
+
+    function withAlpha(hex, alpha) {
+      const c = hex.replace('#','');
+      const bigint = parseInt(c, 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return `rgba(${r},${g},${b},${alpha})`;
+    }
+
+    function capitalize(v) {
+      return v ? v.charAt(0).toUpperCase() + v.slice(1).toLowerCase() : '';
+    }
+
+    function setViewMode(mode) {
+      state.currentMode = mode;
+      document.getElementById('weeklyBtn').classList.toggle('active', mode === 'weekly');
+      document.getElementById('monthlyBtn').classList.toggle('active', mode === 'monthly');
+      document.getElementById('modeWeeklyStudio').classList.toggle('active', mode === 'weekly');
+      document.getElementById('modeMonthlyStudio').classList.toggle('active', mode === 'monthly');
+      renderChart();
+      renderExecutiveSummary();
+    }
+
+    function syncStudioControls() {
+      document.getElementById('metricSelect').value = state.currentMetric;
+      document.getElementById('breakdownModeSelect').value = document.getElementById('buildModeSelect').value;
+    }
+
+    function handleControlChange() {
+      state.currentMetric = document.getElementById('metricSelect').value;
+      document.getElementById('breakdownModeSelect').value = document.getElementById('buildModeSelect').value;
+      fillDimensionValueSelect();
+      renderMetricList();
+      renderChart();
+      renderSnapshots();
+      renderExecutiveSummary();
+    }
+
+    function fakeExport(name) {
+      alert(`${name} export is the next build step. The current prototype already tests upload, validation, dynamic KPI support, filtering, comparison mode, charting and summaries.`);
+    }
+
+    function downloadTemplate() {
+      const wb = XLSX.utils.book_new();
+      const ws1 = XLSX.utils.aoa_to_sheet(demoWorkbook.data);
+      const ws2 = XLSX.utils.aoa_to_sheet(demoWorkbook.settings);
+      const ws3 = XLSX.utils.aoa_to_sheet([
+        ['Instructions'],
+        ['1. Fill Data_Input with one row per metric per period per breakdown.'],
+        ['2. Maintain Metric_Settings with one row per KPI.'],
+        ['3. Date is recommended. Forecast is optional.'],
+        ['4. Previous period comparison is calculated automatically.']
+      ]);
+      XLSX.utils.book_append_sheet(wb, ws1, 'Data_Input');
+      XLSX.utils.book_append_sheet(wb, ws2, 'Metric_Settings');
+      XLSX.utils.book_append_sheet(wb, ws3, 'Instructions');
+      XLSX.writeFile(wb, 'Stratos_Reporting_Studio_Template.xlsx');
+    }
+
+    function loadDemo() {
+      const dataObjects = XLSX.utils.sheet_to_json(XLSX.utils.aoa_to_sheet(demoWorkbook.data), { defval: '' });
+      const settingsObjects = XLSX.utils.sheet_to_json(XLSX.utils.aoa_to_sheet(demoWorkbook.settings), { defval: '' });
+      renderDemoTables();
+      loadWorkbook(dataObjects, settingsObjects, 'Demo workbook');
+    }
+
+    function readUploadedFile(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const wb = XLSX.read(data, { type: 'array' });
+          const dataSheet = wb.Sheets['Data_Input'];
+          const settingsSheet = wb.Sheets['Metric_Settings'];
+          if (!dataSheet || !settingsSheet) throw new Error('Sheets Data_Input and Metric_Settings are both required.');
+          const dataObjects = XLSX.utils.sheet_to_json(dataSheet, { defval: '' });
+          const settingsObjects = XLSX.utils.sheet_to_json(settingsSheet, { defval: '' });
+          renderUploadedTables(dataObjects, settingsObjects);
+          loadWorkbook(dataObjects, settingsObjects, file.name);
+        } catch (err) {
+          alert(err.message || 'Could not read workbook.');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function renderUploadedTables(dataObjects, settingsObjects) {
+      const dataBody = document.getElementById('dataInputTable');
+      dataBody.innerHTML = '';
+      dataObjects.slice(0, 6).forEach(row => {
+        const tr = document.createElement('tr');
+        ['Date','Period','Metric','LOB','Channel','Site','Team','Actual','Target','Forecast'].forEach(key => {
+          const td = document.createElement('td');
+          td.textContent = row[key] ?? '';
+          tr.appendChild(td);
+        });
+        dataBody.appendChild(tr);
+      });
+
+      const settingsBody = document.getElementById('metricSettingsTable');
+      settingsBody.innerHTML = '';
+      settingsObjects.slice(0, 8).forEach(row => {
+        const tr = document.createElement('tr');
+        ['Metric','Metric Group','Unit','Higher is Better','Preferred Chart Type','Include in Deck Default'].forEach(key => {
+          const td = document.createElement('td');
+          td.textContent = row[key] ?? '';
+          tr.appendChild(td);
+        });
+        settingsBody.appendChild(tr);
+      });
+    }
+
+    document.getElementById('downloadTemplateBtn').addEventListener('click', downloadTemplate);
+    document.getElementById('useDemoBtn').addEventListener('click', loadDemo);
+    document.getElementById('fileInput').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) readUploadedFile(file);
+    });
+
+    ['metricSelect','buildModeSelect','dimensionSelect','dimensionValueSelect','chartTypeSelect','breakdownModeSelect','lobFilter','channelFilter','siteFilter','teamFilter','summaryBlocksSelect']
+      .forEach(id => document.addEventListener('change', evt => {
+        if (evt.target.id === id) handleControlChange();
+      }));
+
+    loadDemo();
+  </script>
+</body>
+</html>
