@@ -89,7 +89,37 @@
       color:var(--muted);
       font-size:12px;
     }
+.weight-hint-box{
+  margin-top:18px;
+  padding:14px 16px;
+  border-radius:10px;
+  background:#0f1c3a;
+  border:1px solid #243452;
+  color:#cfe3ff;
+  font-size:13px;
+  line-height:1.45;
+}
 
+.weight-hint-box strong{
+  display:block;
+  font-size:14px;
+  color:#8adfff;
+  margin-bottom:6px;
+}
+
+.weight-examples{
+  margin-top:6px;
+  margin-bottom:8px;
+}
+
+.weight-examples div{
+  margin-bottom:2px;
+}
+
+.weight-note{
+  font-size:12px;
+  color:#9fb6d9;
+}
     .nav-title{
       font-size:12px;
       color:var(--muted);
@@ -826,14 +856,34 @@
               </div>
             </div>
             <div class="card-body">
-              <div class="upload-zone">
-                <h4>Recommended workbook structure</h4>
-                <p>
-                  Sheet 1: Data_Input<br>
-                  Sheet 2: Metric_Settings<br>
-                  Sheet 3: Instructions / Dropdown_Values
-                </p>
-              </div>
+            <div class="upload-zone">
+  <h4>Recommended workbook structure</h4>
+  <p>
+    Sheet 1: Data_Input<br>
+    Sheet 2: Metric_Settings<br>
+    Sheet 3: Instructions
+  </p>
+</div>
+
+<div class="weight-hint-box">
+  <strong>Weight (Optional)</strong>
+  <p>
+    Used when combining multiple rows into one KPI. Enter the operational
+    volume behind the metric so larger workloads influence the overall result
+    more than smaller ones.
+  </p>
+
+  <div class="weight-examples">
+    <div>• <b>SLA</b> → Contact volume</div>
+    <div>• <b>AHT</b> → Handled contacts</div>
+    <div>• <b>QA</b> → Number of audits</div>
+    <div>• <b>Resolution Rate</b> → Cases handled</div>
+  </div>
+
+  <p class="weight-note">
+    Leave this column blank if you want the dashboard to use a simple average.
+  </p>
+</div>
 
               <div class="table-wrap">
                 <table>
@@ -2830,24 +2880,24 @@
     }
 
     function downloadTemplate() {
-      const wb = XLSX.utils.book_new();
-      const ws1 = XLSX.utils.aoa_to_sheet(demoWorkbook.data);
-      const ws2 = XLSX.utils.aoa_to_sheet(demoWorkbook.settings);
-      const ws3 = XLSX.utils.aoa_to_sheet([
-        ['Instructions'],
-        ['1. Fill Data_Input with one row per metric per period per breakdown.'],
-        ['2. Maintain Metric_Settings with one row per KPI.'],
-        ['3. Date is recommended. Forecast is optional.'],
-        ['4. Previous period comparison is calculated automatically.'],
-        ['5. Add Weight when overall actual and target should be weighted rather than averaged.']
-      ]);
+  const wb = XLSX.utils.book_new();
+  const ws1 = XLSX.utils.aoa_to_sheet(demoWorkbook.data);
+  const ws2 = XLSX.utils.aoa_to_sheet(demoWorkbook.settings);
+  const ws3 = XLSX.utils.aoa_to_sheet([
+    ['Instructions'],
+    ['1. Fill Data_Input with one row per metric per period per breakdown.'],
+    ['2. Maintain Metric_Settings with one row per KPI.'],
+    ['3. Date is recommended. Forecast is optional.'],
+    ['4. Previous period comparison is calculated automatically.'],
+    ['5. Add Weight when combining multiple rows into one KPI.'],
+    ['6. Use operational volume (contacts, audits, cases, etc.). Leave blank to use simple average.']
+  ]);
 
-      XLSX.utils.book_append_sheet(wb, ws1, 'Data_Input');
-      XLSX.utils.book_append_sheet(wb, ws2, 'Metric_Settings');
-      XLSX.utils.book_append_sheet(wb, ws3, 'Instructions');
-      XLSX.writeFile(wb, 'Stratos_Reporting_Studio_Template.xlsx');
-    }
-
+  XLSX.utils.book_append_sheet(wb, ws1, 'Data_Input');
+  XLSX.utils.book_append_sheet(wb, ws2, 'Metric_Settings');
+  XLSX.utils.book_append_sheet(wb, ws3, 'Instructions');
+  XLSX.writeFile(wb, 'Stratos_Reporting_Studio_Template.xlsx');
+}
     function loadDemo() {
       const dataObjects = XLSX.utils.sheet_to_json(XLSX.utils.aoa_to_sheet(demoWorkbook.data), { defval: '' });
       const settingsObjects = XLSX.utils.sheet_to_json(XLSX.utils.aoa_to_sheet(demoWorkbook.settings), { defval: '' });
