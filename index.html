@@ -89,37 +89,39 @@
       color:var(--muted);
       font-size:12px;
     }
-.weight-hint-box{
-  margin-top:18px;
-  padding:14px 16px;
-  border-radius:10px;
-  background:#0f1c3a;
-  border:1px solid #243452;
-  color:#cfe3ff;
-  font-size:13px;
-  line-height:1.45;
-}
 
-.weight-hint-box strong{
-  display:block;
-  font-size:14px;
-  color:#8adfff;
-  margin-bottom:6px;
-}
+    .weight-hint-box{
+      margin-top:18px;
+      padding:14px 16px;
+      border-radius:10px;
+      background:#0f1c3a;
+      border:1px solid #243452;
+      color:#cfe3ff;
+      font-size:13px;
+      line-height:1.45;
+    }
 
-.weight-examples{
-  margin-top:6px;
-  margin-bottom:8px;
-}
+    .weight-hint-box strong{
+      display:block;
+      font-size:14px;
+      color:#8adfff;
+      margin-bottom:6px;
+    }
 
-.weight-examples div{
-  margin-bottom:2px;
-}
+    .weight-examples{
+      margin-top:6px;
+      margin-bottom:8px;
+    }
 
-.weight-note{
-  font-size:12px;
-  color:#9fb6d9;
-}
+    .weight-examples div{
+      margin-bottom:2px;
+    }
+
+    .weight-note{
+      font-size:12px;
+      color:#9fb6d9;
+    }
+
     .nav-title{
       font-size:12px;
       color:var(--muted);
@@ -390,7 +392,6 @@
     .up{color:var(--green)}
     .down{color:var(--red)}
     .warn{color:var(--amber)}
-
     .mini-grid{
       display:grid;
       grid-template-columns:repeat(2,1fr);
@@ -678,7 +679,6 @@
       padding-left:18px;
       margin:0;
     }
-
     .export-grid{
       display:grid;
       grid-template-columns:repeat(3,1fr);
@@ -852,40 +852,39 @@
             <div class="card-header">
               <div>
                 <h3>Final Excel template design</h3>
-               <p>Use this structure for real uploads. Comparison against previous periods is calculated automatically from the uploaded time series. The <b>Weight</b> column is optional and should contain the operational volume behind the KPI when you want weighted overall results.</p>
+                <p>Use this structure for real uploads. Comparison against previous periods is calculated automatically from the uploaded time series. The <b>Weight</b> column is optional and should contain the operational volume behind the KPI when you want weighted overall results.</p>
               </div>
             </div>
             <div class="card-body">
-            <div class="upload-zone">
-  <h4>Recommended workbook structure</h4>
-  <p>
-    Sheet 1: Data_Input<br>
-    Sheet 2: Metric_Settings<br>
-    Sheet 3: Instructions
-  </p>
-</div>
+              <div class="upload-zone">
+                <h4>Recommended workbook structure</h4>
+                <p>
+                  Sheet 1: Data_Input<br>
+                  Sheet 2: Metric_Settings<br>
+                  Sheet 3: Instructions
+                </p>
+              </div>
 
-<div class="weight-hint-box">
-  <strong>Weight (Optional)</strong>
-  <p>
-    Used when combining multiple rows into one KPI. Enter the operational
-    volume behind the metric so larger workloads influence the overall result
-    more than smaller ones.
-  </p>
+              <div class="weight-hint-box">
+                <strong>Weight (Optional)</strong>
+                <p>
+                  Used when combining multiple rows into one KPI. Enter the operational
+                  volume behind the metric so larger workloads influence the overall result
+                  more than smaller ones.
+                </p>
 
-  <div class="weight-examples">
-    <div>• <b>SLA</b> → Contact volume</div>
-    <div>• <b>AHT</b> → Handled contacts</div>
-    <div>• <b>QA</b> → Number of audits</div>
-    <div>• <b>Resolution Rate</b> → Cases handled</div>
-  </div>
+                <div class="weight-examples">
+                  <div>• <b>SLA</b> → Contact volume</div>
+                  <div>• <b>AHT</b> → Handled contacts</div>
+                  <div>• <b>QA</b> → Number of audits</div>
+                  <div>• <b>Resolution Rate</b> → Cases handled</div>
+                </div>
 
-  <p class="weight-note">
-    Leave this column blank if you want the dashboard to use a simple average.
-  </p>
-</div>
-
-              <div class="table-wrap">
+                <p class="weight-note">
+                  Leave this column blank if you want the dashboard to use a simple average.
+                </p>
+              </div>
+                <div class="table-wrap">
                 <table>
                   <thead>
                     <tr>
@@ -1058,8 +1057,7 @@
               </div>
             </div>
           </div>
-
-          <div class="card">
+                    <div class="card">
             <div class="card-header">
               <div>
                 <h3>Chart settings</h3>
@@ -1068,22 +1066,22 @@
             </div>
             <div class="card-body">
               <div class="field">
-  <label>Chart Mode</label>
-  <select id="chartModeSelect">
-    <option value="single">Single Metric</option>
-    <option value="dual">Dual Metric</option>
-  </select>
-</div>
+                <label>Chart Mode</label>
+                <select id="chartModeSelect">
+                  <option value="single">Single Metric</option>
+                  <option value="dual">Dual Metric</option>
+                </select>
+              </div>
 
-<div class="field" style="margin-top:12px;">
-  <label>Chart Type</label>
-  <select id="chartTypeSelect"></select>
-</div>
+              <div class="field" style="margin-top:12px;">
+                <label>Chart Type</label>
+                <select id="chartTypeSelect"></select>
+              </div>
 
-<div class="field" style="margin-top:12px;">
-  <label>Secondary Metric</label>
-  <select id="secondaryMetricSelect"></select>
-</div>
+              <div class="field" style="margin-top:12px;">
+                <label>Secondary Metric</label>
+                <select id="secondaryMetricSelect"></select>
+              </div>
 
               <div class="field" style="margin-top:12px;">
                 <label>Breakdown Mode</label>
@@ -1230,18 +1228,18 @@
   </div>
 
   <script>
-const state = {
-  rawRows: [],
-  metricSettings: {},
-  metrics: [],
-  dimensions: ['LOB','Channel','Site','Team'],
-  currentMode: 'weekly',
-  currentMetric: null,
-  chart: null,
-  clientLogoData: null,
-  slideTitleTouched: false,
-  customSlideTitle: ''
-};
+    const state = {
+      rawRows: [],
+      metricSettings: {},
+      metrics: [],
+      dimensions: ['LOB','Channel','Site','Team'],
+      currentMode: 'weekly',
+      currentMetric: null,
+      chart: null,
+      clientLogoData: null,
+      slideTitleTouched: false,
+      customSlideTitle: ''
+    };
 
     const demoWorkbook = buildDemoWorkbook();
 
@@ -1265,7 +1263,6 @@ const state = {
         ['2026-02-09','Week 6','SLA','Support','Email','KL','Team A',95,85,91,9100],
         ['2026-02-16','Week 7','SLA','Support','Email','KL','Team A',94,85,91,8900],
         ['2026-02-23','Week 8','SLA','Support','Email','KL','Team A',95,85,92,9300],
-
         ['2026-01-05','Week 1','AHT','Support','Voice','KL','Team A',560,570,'',12100],
         ['2026-01-12','Week 2','AHT','Support','Voice','KL','Team A',570,570,'',12420],
         ['2026-01-19','Week 3','AHT','Support','Voice','KL','Team A',573,570,'',11980],
@@ -1440,8 +1437,7 @@ const state = {
         });
         dataBody.appendChild(tr);
       });
-
-      const settingsBody = document.getElementById('metricSettingsTable');
+            const settingsBody = document.getElementById('metricSettingsTable');
       settingsBody.innerHTML = '';
       settingsObjects.slice(0, 8).forEach(row => {
         const tr = document.createElement('tr');
@@ -1582,26 +1578,28 @@ const state = {
       const values = [...new Set(state.rawRows.map(r => normalizeString(r[dimension])).filter(Boolean))];
       fillSelect('dimensionValueSelect', ['All', ...values], 'All');
     }
-function populateSecondaryMetricSelect() {
-  const primary = state.currentMetric;
-  const options = state.metrics.filter(m => m !== primary);
-  const el = document.getElementById('secondaryMetricSelect');
-  const current = el.value;
 
-  el.innerHTML = '';
+    function populateSecondaryMetricSelect() {
+      const primary = state.currentMetric;
+      const options = state.metrics.filter(m => m !== primary);
+      const el = document.getElementById('secondaryMetricSelect');
+      const current = el.value;
 
-  options.forEach(metric => {
-    const opt = document.createElement('option');
-    opt.value = metric;
-    opt.textContent = metric;
-    if (metric === current) opt.selected = true;
-    el.appendChild(opt);
-  });
+      el.innerHTML = '';
 
-  if (!el.value && options.length) {
-    el.value = options[0];
-  }
-}
+      options.forEach(metric => {
+        const opt = document.createElement('option');
+        opt.value = metric;
+        opt.textContent = metric;
+        if (metric === current) opt.selected = true;
+        el.appendChild(opt);
+      });
+
+      if (!el.value && options.length) {
+        el.value = options[0];
+      }
+    }
+
     function populateChartTypeSelect() {
       const metric = state.currentMetric;
       const preferred = state.metricSettings[metric]?.preferredChartType || 'Line';
@@ -1609,20 +1607,19 @@ function populateSecondaryMetricSelect() {
       document.getElementById('chartTypeSelect').dataset.preferred = preferred;
     }
 
-function populateControls() {
-  fillSelect('metricSelect', state.metrics, state.currentMetric);
-  fillSelect('dimensionSelect', ['Channel','LOB','Site','Team'], document.getElementById('dimensionSelect').value || 'Channel');
-  fillDimensionValueSelect();
-  fillFilterSelect('lobFilter', 'LOB');
-  fillFilterSelect('channelFilter', 'Channel');
-  fillFilterSelect('siteFilter', 'Site');
-  fillFilterSelect('teamFilter', 'Team');
-  populateChartTypeSelect();
-  populateSecondaryMetricSelect();
-  syncStudioControls();
-}
-
-    function renderMetricList() {
+    function populateControls() {
+      fillSelect('metricSelect', state.metrics, state.currentMetric);
+      fillSelect('dimensionSelect', ['Channel','LOB','Site','Team'], document.getElementById('dimensionSelect').value || 'Channel');
+      fillDimensionValueSelect();
+      fillFilterSelect('lobFilter', 'LOB');
+      fillFilterSelect('channelFilter', 'Channel');
+      fillFilterSelect('siteFilter', 'Site');
+      fillFilterSelect('teamFilter', 'Team');
+      populateChartTypeSelect();
+      populateSecondaryMetricSelect();
+      syncStudioControls();
+    }
+        function renderMetricList() {
       const list = document.getElementById('metricList');
       list.innerHTML = '';
       state.metrics.forEach(metric => {
@@ -1631,18 +1628,18 @@ function populateControls() {
         item.className = 'metric-item' + (metric === state.currentMetric ? ' active' : '');
         item.innerHTML = `<h4>${metric}</h4><p>${settings.metricGroup || 'General'} KPI · ${settings.preferredChartType || 'Auto'} suggested</p>`;
         item.onclick = () => {
-  state.currentMetric = metric;
-  document.getElementById('metricSelect').value = metric;
-  state.slideTitleTouched = false;
-  state.customSlideTitle = '';
-  populateChartTypeSelect();
-  populateSecondaryMetricSelect();
-  renderMetricList();
-  renderSuggestions();
-  renderChart();
-  renderSnapshots();
-  renderExecutiveSummary();
-};
+          state.currentMetric = metric;
+          document.getElementById('metricSelect').value = metric;
+          state.slideTitleTouched = false;
+          state.customSlideTitle = '';
+          populateChartTypeSelect();
+          populateSecondaryMetricSelect();
+          renderMetricList();
+          renderSuggestions();
+          renderChart();
+          renderSnapshots();
+          renderExecutiveSummary();
+        };
         list.appendChild(item);
       });
     }
@@ -1798,51 +1795,62 @@ function populateControls() {
       parts.push(settings.higherIsBetter ? 'higher is better' : 'lower is better');
       return parts.join(' · ');
     }
-function getDualMetricChartConfig(primaryMetric, secondaryMetric) {
-  const primarySettings = state.metricSettings[primaryMetric] || {};
-  const secondarySettings = state.metricSettings[secondaryMetric] || {};
 
-  const pUnit = normalizeString(primarySettings.unit).toLowerCase();
-  const sUnit = normalizeString(secondarySettings.unit).toLowerCase();
+    function getDualMetricChartConfig(primaryMetric, secondaryMetric) {
+      const primarySettings = state.metricSettings[primaryMetric] || {};
+      const secondarySettings = state.metricSettings[secondaryMetric] || {};
 
-  const pair = `${primaryMetric.toLowerCase()}|${secondaryMetric.toLowerCase()}`;
+      const pUnit = normalizeString(primarySettings.unit).toLowerCase();
+      const sUnit = normalizeString(secondarySettings.unit).toLowerCase();
 
-  if (
-    pair.includes('sla') && pair.includes('aht') ||
-    pair.includes('occupancy') && pair.includes('aht')
-  ) {
-    return {
-      primaryType: 'line',
-      secondaryType: 'line',
-      dualAxis: true
-    };
-  }
+      const pair = `${primaryMetric.toLowerCase()}|${secondaryMetric.toLowerCase()}`;
 
-  if (
-    pair.includes('volume') && pair.includes('sla') ||
-    pair.includes('volume') && pair.includes('response')
-  ) {
-    return {
-      primaryType: primaryMetric.toLowerCase().includes('volume') ? 'bar' : 'line',
-      secondaryType: secondaryMetric.toLowerCase().includes('volume') ? 'bar' : 'line',
-      dualAxis: true
-    };
-  }
+      if (
+        pair.includes('sla') && pair.includes('aht') ||
+        pair.includes('occupancy') && pair.includes('aht')
+      ) {
+        return { primaryType: 'line', secondaryType: 'line', dualAxis: true };
+      }
 
-  if (pUnit && sUnit && pUnit === sUnit) {
-    return {
-      primaryType: 'line',
-      secondaryType: 'line',
-      dualAxis: false
-    };
-  }
+      if (
+        pair.includes('volume') && pair.includes('sla') ||
+        pair.includes('volume') && pair.includes('response')
+      ) {
+        return {
+          primaryType: primaryMetric.toLowerCase().includes('volume') ? 'bar' : 'line',
+          secondaryType: secondaryMetric.toLowerCase().includes('volume') ? 'bar' : 'line',
+          dualAxis: true
+        };
+      }
 
-  return {
-    primaryType: 'line',
-    secondaryType: 'line',
-    dualAxis: true
-  };
-}
+      if (pUnit && sUnit && pUnit === sUnit) {
+        return { primaryType: 'line', secondaryType: 'line', dualAxis: false };
+      }
+
+      return { primaryType: 'line', secondaryType: 'line', dualAxis: true };
+    }
+
+    function getDualModeChartTypes(primaryMetric, secondaryMetric) {
+      const chosenType = document.getElementById('chartTypeSelect').value;
+      const autoConfig = getDualMetricChartConfig(primaryMetric, secondaryMetric);
+
+      if (chosenType === 'Auto Suggested') return autoConfig;
+      if (chosenType === 'Line' || chosenType === 'Area') {
+        return { primaryType: 'line', secondaryType: 'line', dualAxis: autoConfig.dualAxis };
+      }
+      if (chosenType === 'Bar' || chosenType === 'Clustered Bar') {
+        return { primaryType: 'bar', secondaryType: autoConfig.dualAxis ? 'line' : 'bar', dualAxis: autoConfig.dualAxis };
+      }
+      if (chosenType === 'Combo') {
+        return {
+          primaryType: primaryMetric.toLowerCase().includes('volume') ? 'bar' : 'line',
+          secondaryType: secondaryMetric.toLowerCase().includes('volume') ? 'bar' : 'line',
+          dualAxis: autoConfig.dualAxis
+        };
+      }
+      return autoConfig;
+    }
+
     function getArrowInfo(actualValue, targetValue, previousValue, higherIsBetter) {
       let compareValue = null;
       if (targetValue !== null && targetValue !== undefined) compareValue = targetValue;
@@ -1863,308 +1871,321 @@ function getDualMetricChartConfig(primaryMetric, secondaryMetric) {
       return { min: min - pad, max: max + pad };
     }
 
-const arrowPlugin = {
-  id: 'arrowPlugin',
-  afterDatasetsDraw(chart) {
-    const metric = state.currentMetric;
-    const chartMode = document.getElementById('chartModeSelect')?.value || 'single';
-    const breakdownMode = document.getElementById('breakdownModeSelect').value;
+    function getAxisBoundsForValues(values) {
+      const nums = values.filter(v => v !== null && v !== undefined && !Number.isNaN(v));
+      if (!nums.length) return {};
+      const min = Math.min(...nums);
+      const max = Math.max(...nums);
+      const range = Math.max(max - min, Math.abs(max) * 0.08, 1);
+      const pad = range * 0.25;
+      return { min: min - pad, max: max + pad };
+    }
+        const arrowPlugin = {
+      id: 'arrowPlugin',
+      afterDatasetsDraw(chart) {
+        const metric = state.currentMetric;
+        const breakdownMode = document.getElementById('breakdownModeSelect').value;
+        if (breakdownMode === 'compare') return;
 
-    if (breakdownMode === 'compare') return;
+        const { actualSeries, target, settings } = buildSeries(metric);
+        const actual = actualSeries[0]?.values || [];
+        const previous = actual.map((_, i) => i > 0 ? actual[i - 1] : null);
+        const meta = chart.getDatasetMeta(0);
+        if (!meta || !meta.data) return;
 
-    const { actualSeries, target, settings } = buildSeries(metric);
-    const actual = actualSeries[0]?.values || [];
-    const previous = actual.map((_, i) => i > 0 ? actual[i - 1] : null);
+        const ctx = chart.ctx;
+        ctx.save();
+        ctx.font = 'bold 14px Inter, Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
 
-    const meta = chart.getDatasetMeta(0);
-    if (!meta || !meta.data) return;
+        meta.data.forEach((point, index) => {
+          if (!point || actual[index] === null || actual[index] === undefined) return;
+          const info = getArrowInfo(actual[index], target[index], previous[index], settings.higherIsBetter);
+          if (!info) return;
+          ctx.fillStyle = info.color;
+          ctx.fillText(info.arrow, point.x, point.y - 16);
+        });
 
-    const ctx = chart.ctx;
-    ctx.save();
-    ctx.font = 'bold 14px Inter, Arial, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    meta.data.forEach((point, index) => {
-      if (!point || actual[index] === null || actual[index] === undefined) return;
-
-      const info = getArrowInfo(actual[index], target[index], previous[index], settings.higherIsBetter);
-      if (!info) return;
-
-      ctx.fillStyle = info.color;
-      ctx.fillText(info.arrow, point.x, point.y - 16);
-    });
-
-    ctx.restore();
-  }
-};
-
-  function renderChart() {
-  if (!state.currentMetric) return;
-
-  const chartMode = document.getElementById('chartModeSelect')?.value || 'single';
-  const secondaryMetric = document.getElementById('secondaryMetricSelect')?.value || null;
-
-  const primaryBuilt = buildSeries(state.currentMetric);
-  const primaryPeriods = primaryBuilt.periods;
-  const primaryActualSeries = primaryBuilt.actualSeries;
-  const primaryTarget = primaryBuilt.target;
-  const primaryForecast = primaryBuilt.forecast;
-  const primarySettings = primaryBuilt.settings;
-  const effectiveMode = primaryBuilt.effectiveMode;
-
-  let title = buildChartTitle(state.currentMetric);
-  let subtitle = buildChartSubtitle(state.currentMetric, primarySettings);
-
-  if (!state.slideTitleTouched) {
-  state.customSlideTitle = title;
-  document.getElementById('slideTitleInput').value = title;
-}
-
-  const usesWeights = getFilteredRows(state.currentMetric).some(r => r.Weight !== null && r.Weight > 0);
-  document.getElementById('aggregationLabel').textContent =
-    effectiveMode === 'overall'
-      ? 'Aggregation: ' + (usesWeights ? 'Weighted Overall' : 'Simple Average')
-      : 'Aggregation: Segmented View';
-
-  const ctx = document.getElementById('mainChart').getContext('2d');
-  if (state.chart) state.chart.destroy();
-
-  const colors = ['#38bdf8','#14b8a6','#8b5cf6','#f59e0b','#ef4444','#22c55e'];
-  let datasets = [];
-  let chartType = 'line';
-  let chartOptionsScales = {};
-
-  if (chartMode === 'dual' && secondaryMetric && secondaryMetric !== state.currentMetric) {
-    const secondaryBuilt = buildSeries(secondaryMetric);
-    const secondarySettings = secondaryBuilt.settings;
-    const secondaryValues = secondaryBuilt.actualSeries[0]?.values || [];
-    const primaryValues = primaryActualSeries[0]?.values || [];
-    const primaryTargetValues = primaryTarget || [];
-const primaryForecastValues = primaryForecast || [];
-
-    const dualConfig = getDualMetricChartConfig(state.currentMetric, secondaryMetric);
-
-    title = `${state.currentMetric} vs ${secondaryMetric}`;
-    subtitle = `${state.currentMode === 'weekly' ? 'Weekly' : 'Monthly'} comparison view · dual metric analysis`;
-
-    document.getElementById('chartTitle').textContent = title;
-    document.getElementById('chartSubtitle').textContent = subtitle;
-    if (!state.slideTitleTouched) {
-  state.customSlideTitle = title;
-  document.getElementById('slideTitleInput').value = title;
-}
-
-    datasets = [
-  {
-    label: state.currentMetric,
-    data: primaryValues,
-    type: dualConfig.primaryType,
-    borderColor: colors[0],
-    backgroundColor: dualConfig.primaryType === 'bar' ? withAlpha(colors[0], 0.6) : withAlpha(colors[0], 0.15),
-    pointBackgroundColor: colors[0],
-    pointBorderColor: colors[0],
-    pointRadius: 4,
-    pointHoverRadius: 5,
-    borderWidth: 3,
-    tension: 0.35,
-    fill: false,
-    yAxisID: 'y'
-  }
-];
-
-if (primaryTargetValues.some(v => v !== null)) {
-  datasets.push({
-    label: `${state.currentMetric} Target`,
-    data: primaryTargetValues,
-    type: 'line',
-    borderColor: '#f59e0b',
-    backgroundColor: 'rgba(245,158,11,0.12)',
-    pointBackgroundColor: '#f59e0b',
-    pointBorderColor: '#f59e0b',
-    pointRadius: 2,
-    borderWidth: 2,
-    borderDash: [6,6],
-    tension: 0.2,
-    fill: false,
-    yAxisID: 'y'
-  });
-}
-
-if (primaryForecastValues.some(v => v !== null)) {
-  datasets.push({
-    label: `${state.currentMetric} Forecast`,
-    data: primaryForecastValues,
-    type: 'line',
-    borderColor: '#8b5cf6',
-    backgroundColor: 'rgba(139,92,246,0.12)',
-    pointBackgroundColor: '#8b5cf6',
-    pointBorderColor: '#8b5cf6',
-    pointRadius: 2,
-    borderWidth: 2,
-    borderDash: [3,4],
-    tension: 0.25,
-    fill: false,
-    yAxisID: 'y'
-  });
-}
-
-datasets.push({
-  label: secondaryMetric,
-  data: secondaryValues,
-  type: dualConfig.secondaryType,
-  borderColor: colors[1],
-  backgroundColor: dualConfig.secondaryType === 'bar' ? withAlpha(colors[1], 0.6) : withAlpha(colors[1], 0.15),
-  pointBackgroundColor: colors[1],
-  pointBorderColor: colors[1],
-  pointRadius: 4,
-  pointHoverRadius: 5,
-  borderWidth: 3,
-  tension: 0.35,
-  fill: false,
-  yAxisID: dualConfig.dualAxis ? 'y1' : 'y'
-});
-
-    chartType = 'line';
-
-    chartOptionsScales = {
-      x: {
-        ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
-        grid: { color: 'rgba(255,255,255,.06)' },
-        border: { display: true, color: 'rgba(255,255,255,.22)', width: 2 },
-        title: { display: true, text: 'Reporting Period', color: '#eef4ff', font: { size: 13, weight: '800' } }
-      },
-      y: {
-        position: 'left',
-        ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
-        grid: { color: 'rgba(255,255,255,.08)' },
-        border: { display: true, color: 'rgba(255,255,255,.28)', width: 2 },
-        title: {
-          display: true,
-          text: primarySettings.unit ? `${state.currentMetric} (${primarySettings.unit})` : state.currentMetric,
-          color: '#eef4ff',
-          font: { size: 13, weight: '800' }
-        }
-      },
-      y1: {
-        position: 'right',
-        ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
-        grid: { drawOnChartArea: false },
-        border: { display: true, color: 'rgba(255,255,255,.28)', width: 2 },
-        title: {
-          display: dualConfig.dualAxis,
-          text: secondarySettings.unit ? `${secondaryMetric} (${secondarySettings.unit})` : secondaryMetric,
-          color: '#eef4ff',
-          font: { size: 13, weight: '800' }
-        }
+        ctx.restore();
       }
     };
 
-    renderDualMetricInsights(state.currentMetric, secondaryMetric, primaryValues, secondaryValues, primarySettings, secondarySettings);
-  } else {
-    document.getElementById('chartTitle').textContent = title;
-    document.getElementById('chartSubtitle').textContent = subtitle;
+    function renderChart() {
+      if (!state.currentMetric) return;
 
-    const chosenType = document.getElementById('chartTypeSelect').value;
-    const baseType = chosenType === 'Auto Suggested' ? suggestChart(state.currentMetric) : chosenType;
-    chartType = ['Bar', 'Clustered Bar'].includes(baseType) ? 'bar' : 'line';
+      const chartMode = document.getElementById('chartModeSelect')?.value || 'single';
+      const secondaryMetric = document.getElementById('secondaryMetricSelect')?.value || null;
 
-    datasets = primaryActualSeries.map((series, index) => ({
-      label: series.label,
-      data: series.values,
-      borderColor: colors[index % colors.length],
-      backgroundColor: chartType === 'bar' ? withAlpha(colors[index % colors.length], 0.6) : withAlpha(colors[index % colors.length], 0.18),
-      pointBackgroundColor: colors[index % colors.length],
-      pointBorderColor: colors[index % colors.length],
-      pointRadius: 4,
-      pointHoverRadius: 5,
-      borderWidth: 3,
-      tension: 0.35,
-      fill: chartType === 'line' && primaryActualSeries.length === 1
-    }));
+      const primaryBuilt = buildSeries(state.currentMetric);
+      const primaryPeriods = primaryBuilt.periods;
+      const primaryActualSeries = primaryBuilt.actualSeries;
+      const primaryTarget = primaryBuilt.target;
+      const primaryForecast = primaryBuilt.forecast;
+      const primarySettings = primaryBuilt.settings;
+      const effectiveMode = primaryBuilt.effectiveMode;
 
-    if (primaryActualSeries.length === 1 && primaryTarget.some(v => v !== null)) {
-      datasets.push({
-        label: 'Target',
-        data: primaryTarget,
-        borderColor: '#f59e0b',
-        backgroundColor: 'rgba(245,158,11,0.15)',
-        pointBackgroundColor: '#f59e0b',
-        pointBorderColor: '#f59e0b',
-        pointRadius: 3,
-        borderWidth: 2,
-        borderDash: [6,6],
-        tension: 0.2,
-        fill: false,
-        type: 'line'
-      });
-    }
+      let title = buildChartTitle(state.currentMetric);
+      let subtitle = buildChartSubtitle(state.currentMetric, primarySettings);
 
-    if (primaryActualSeries.length === 1 && primaryForecast.some(v => v !== null)) {
-      datasets.push({
-        label: 'Forecast',
-        data: primaryForecast,
-        borderColor: '#8b5cf6',
-        backgroundColor: 'rgba(139,92,246,0.12)',
-        pointBackgroundColor: '#8b5cf6',
-        pointBorderColor: '#8b5cf6',
-        pointRadius: 3,
-        borderWidth: 2,
-        tension: 0.25,
-        fill: false,
-        type: 'line'
-      });
-    }
-
-    const bounds = getAxisBounds(datasets);
-
-    chartOptionsScales = {
-      x: {
-        ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
-        grid: { color: 'rgba(255,255,255,.06)' },
-        border: { display: true, color: 'rgba(255,255,255,.22)', width: 2 },
-        title: { display: true, text: 'Reporting Period', color: '#eef4ff', font: { size: 13, weight: '800' } }
-      },
-      y: {
-        min: bounds.min,
-        max: bounds.max,
-        ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
-        grid: { color: 'rgba(255,255,255,.08)' },
-        border: { display: true, color: 'rgba(255,255,255,.28)', width: 2 },
-        title: { display: true, text: primarySettings.unit ? 'Metric Value (' + primarySettings.unit + ')' : 'Metric Value', color: '#eef4ff', font: { size: 13, weight: '800' } }
+      if (!state.slideTitleTouched) {
+        state.customSlideTitle = title;
+        document.getElementById('slideTitleInput').value = title;
       }
-    };
 
-    renderInsights(primaryPeriods, primaryActualSeries, primaryTarget, primarySettings);
-  }
+      const visibleTitle = state.slideTitleTouched && state.customSlideTitle ? state.customSlideTitle : title;
+      document.getElementById('chartTitle').textContent = visibleTitle;
 
-  state.chart = new Chart(ctx, {
-    type: chartType,
-    data: { labels: primaryPeriods, datasets },
-    plugins: [arrowPlugin],
-    options: {
-      animation: false,
-      maintainAspectRatio: false,
-      responsive: true,
-      layout: { padding: { top: 28, right: 12, bottom: 8, left: 8 } },
-      plugins: {
-        legend: {
-          labels: { color: '#dce7fa', boxWidth: 14, font: { size: 12, weight: '700' } }
-        },
-        tooltip: {
-          backgroundColor: '#0f172a',
-          titleColor: '#fff',
-          bodyColor: '#dbe9ff',
-          borderColor: 'rgba(255,255,255,.1)',
-          borderWidth: 1
+      const usesWeights = getFilteredRows(state.currentMetric).some(r => r.Weight !== null && r.Weight > 0);
+      document.getElementById('aggregationLabel').textContent =
+        effectiveMode === 'overall'
+          ? 'Aggregation: ' + (usesWeights ? 'Weighted Overall' : 'Simple Average')
+          : 'Aggregation: Segmented View';
+
+      const ctx = document.getElementById('mainChart').getContext('2d');
+      if (state.chart) state.chart.destroy();
+
+      const colors = ['#38bdf8','#14b8a6','#8b5cf6','#f59e0b','#ef4444','#22c55e'];
+      let datasets = [];
+      let chartType = 'line';
+      let chartOptionsScales = {};
+
+      if (chartMode === 'dual' && secondaryMetric && secondaryMetric !== state.currentMetric) {
+        const secondaryBuilt = buildSeries(secondaryMetric);
+        const secondarySettings = secondaryBuilt.settings;
+        const secondaryValues = secondaryBuilt.actualSeries[0]?.values || [];
+        const primaryValues = primaryActualSeries[0]?.values || [];
+        const primaryTargetValues = primaryTarget || [];
+        const primaryForecastValues = primaryForecast || [];
+        const dualConfig = getDualModeChartTypes(state.currentMetric, secondaryMetric);
+
+        title = `${state.currentMetric} vs ${secondaryMetric}`;
+        subtitle = `${state.currentMode === 'weekly' ? 'Weekly' : 'Monthly'} comparison view · dual metric analysis`;
+
+        if (!state.slideTitleTouched) {
+          state.customSlideTitle = title;
+          document.getElementById('slideTitleInput').value = title;
         }
-      },
-      scales: chartOptionsScales
-    }
-  });
-}
 
-    function generateMetricSpecificActions(metric, settings, latest, targetLatest) {
+        document.getElementById('chartTitle').textContent =
+          state.slideTitleTouched && state.customSlideTitle ? state.customSlideTitle : title;
+        document.getElementById('chartSubtitle').textContent = subtitle;
+
+        datasets = [{
+          label: state.currentMetric,
+          data: primaryValues,
+          type: dualConfig.primaryType,
+          borderColor: colors[0],
+          backgroundColor: dualConfig.primaryType === 'bar' ? withAlpha(colors[0], 0.6) : withAlpha(colors[0], 0.15),
+          pointBackgroundColor: colors[0],
+          pointBorderColor: colors[0],
+          pointRadius: 4,
+          pointHoverRadius: 5,
+          borderWidth: 3,
+          tension: 0.35,
+          fill: false,
+          yAxisID: 'y'
+        }];
+
+        if (primaryTargetValues.some(v => v !== null)) {
+          datasets.push({
+            label: `${state.currentMetric} Target`,
+            data: primaryTargetValues,
+            type: 'line',
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245,158,11,0.12)',
+            pointBackgroundColor: '#f59e0b',
+            pointBorderColor: '#f59e0b',
+            pointRadius: 2,
+            borderWidth: 2,
+            borderDash: [6,6],
+            tension: 0.2,
+            fill: false,
+            yAxisID: 'y'
+          });
+        }
+
+        if (primaryForecastValues.some(v => v !== null)) {
+          datasets.push({
+            label: `${state.currentMetric} Forecast`,
+            data: primaryForecastValues,
+            type: 'line',
+            borderColor: '#8b5cf6',
+            backgroundColor: 'rgba(139,92,246,0.12)',
+            pointBackgroundColor: '#8b5cf6',
+            pointBorderColor: '#8b5cf6',
+            pointRadius: 2,
+            borderWidth: 2,
+            borderDash: [3,4],
+            tension: 0.25,
+            fill: false,
+            yAxisID: 'y'
+          });
+        }
+
+        datasets.push({
+          label: secondaryMetric,
+          data: secondaryValues,
+          type: dualConfig.secondaryType,
+          borderColor: colors[1],
+          backgroundColor: dualConfig.secondaryType === 'bar' ? withAlpha(colors[1], 0.6) : withAlpha(colors[1], 0.15),
+          pointBackgroundColor: colors[1],
+          pointBorderColor: colors[1],
+          pointRadius: 4,
+          pointHoverRadius: 5,
+          borderWidth: 3,
+          tension: 0.35,
+          fill: false,
+          yAxisID: dualConfig.dualAxis ? 'y1' : 'y'
+        });
+
+        const yValues = datasets.filter(ds => ds.yAxisID === 'y').flatMap(ds => ds.data);
+        const y1Values = datasets.filter(ds => ds.yAxisID === 'y1').flatMap(ds => ds.data);
+        const yBounds = getAxisBoundsForValues(yValues);
+        const y1Bounds = getAxisBoundsForValues(y1Values);
+
+        chartOptionsScales = {
+          x: {
+            ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
+            grid: { color: 'rgba(255,255,255,.06)' },
+            border: { display: true, color: 'rgba(255,255,255,.22)', width: 2 },
+            title: { display: true, text: 'Reporting Period', color: '#eef4ff', font: { size: 13, weight: '800' } }
+          },
+          y: {
+            min: yBounds.min,
+            max: yBounds.max,
+            position: 'left',
+            ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
+            grid: { color: 'rgba(255,255,255,.08)' },
+            border: { display: true, color: 'rgba(255,255,255,.28)', width: 2 },
+            title: {
+              display: true,
+              text: primarySettings.unit ? `${state.currentMetric} (${primarySettings.unit})` : state.currentMetric,
+              color: '#eef4ff',
+              font: { size: 13, weight: '800' }
+            }
+          },
+          y1: {
+            min: y1Bounds.min,
+            max: y1Bounds.max,
+            position: 'right',
+            ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
+            grid: { drawOnChartArea: false },
+            border: { display: true, color: 'rgba(255,255,255,.28)', width: 2 },
+            title: {
+              display: dualConfig.dualAxis,
+              text: secondarySettings.unit ? `${secondaryMetric} (${secondarySettings.unit})` : secondaryMetric,
+              color: '#eef4ff',
+              font: { size: 13, weight: '800' }
+            }
+          }
+        };
+
+        renderDualMetricInsights(state.currentMetric, secondaryMetric, primaryValues, secondaryValues, primarySettings, secondarySettings);
+      } else {
+        document.getElementById('chartTitle').textContent =
+          state.slideTitleTouched && state.customSlideTitle ? state.customSlideTitle : title;
+        document.getElementById('chartSubtitle').textContent = subtitle;
+
+        const chosenType = document.getElementById('chartTypeSelect').value;
+        const baseType = chosenType === 'Auto Suggested' ? suggestChart(state.currentMetric) : chosenType;
+        chartType = ['Bar','Clustered Bar'].includes(baseType) ? 'bar' : 'line';
+
+        datasets = primaryActualSeries.map((series, index) => ({
+          label: series.label,
+          data: series.values,
+          borderColor: colors[index % colors.length],
+          backgroundColor: chartType === 'bar' ? withAlpha(colors[index % colors.length], 0.6) : withAlpha(colors[index % colors.length], 0.18),
+          pointBackgroundColor: colors[index % colors.length],
+          pointBorderColor: colors[index % colors.length],
+          pointRadius: 4,
+          pointHoverRadius: 5,
+          borderWidth: 3,
+          tension: 0.35,
+          fill: chartType === 'line' && primaryActualSeries.length === 1
+        }));
+
+        if (primaryActualSeries.length === 1 && primaryTarget.some(v => v !== null)) {
+          datasets.push({
+            label: 'Target',
+            data: primaryTarget,
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245,158,11,0.15)',
+            pointBackgroundColor: '#f59e0b',
+            pointBorderColor: '#f59e0b',
+            pointRadius: 3,
+            borderWidth: 2,
+            borderDash: [6,6],
+            tension: 0.2,
+            fill: false,
+            type: 'line'
+          });
+        }
+
+        if (primaryActualSeries.length === 1 && primaryForecast.some(v => v !== null)) {
+          datasets.push({
+            label: 'Forecast',
+            data: primaryForecast,
+            borderColor: '#8b5cf6',
+            backgroundColor: 'rgba(139,92,246,0.12)',
+            pointBackgroundColor: '#8b5cf6',
+            pointBorderColor: '#8b5cf6',
+            pointRadius: 3,
+            borderWidth: 2,
+            tension: 0.25,
+            fill: false,
+            type: 'line'
+          });
+        }
+
+        const bounds = getAxisBounds(datasets);
+
+        chartOptionsScales = {
+          x: {
+            ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
+            grid: { color: 'rgba(255,255,255,.06)' },
+            border: { display: true, color: 'rgba(255,255,255,.22)', width: 2 },
+            title: { display: true, text: 'Reporting Period', color: '#eef4ff', font: { size: 13, weight: '800' } }
+          },
+          y: {
+            min: bounds.min,
+            max: bounds.max,
+            ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
+            grid: { color: 'rgba(255,255,255,.08)' },
+            border: { display: true, color: 'rgba(255,255,255,.28)', width: 2 },
+            title: { display: true, text: primarySettings.unit ? `Metric Value (${primarySettings.unit})` : 'Metric Value', color: '#eef4ff', font: { size: 13, weight: '800' } }
+          }
+        };
+
+        renderInsights(primaryPeriods, primaryActualSeries, primaryTarget, primarySettings);
+      }
+
+      state.chart = new Chart(ctx, {
+        type: chartType,
+        data: { labels: primaryPeriods, datasets },
+        plugins: [arrowPlugin],
+        options: {
+          animation: false,
+          maintainAspectRatio: false,
+          responsive: true,
+          layout: { padding: { top: 28, right: 12, bottom: 8, left: 8 } },
+          plugins: {
+            legend: {
+              labels: { color: '#dce7fa', boxWidth: 14, font: { size: 12, weight: '700' } }
+            },
+            tooltip: {
+              backgroundColor: '#0f172a',
+              titleColor: '#fff',
+              bodyColor: '#dbe9ff',
+              borderColor: 'rgba(255,255,255,.1)',
+              borderWidth: 1
+            }
+          },
+          scales: chartOptionsScales
+        }
+      });
+    }
+        function generateMetricSpecificActions(metric, settings, latest, targetLatest) {
       const key = metric.toLowerCase();
       const miss = targetLatest !== null ? (settings.higherIsBetter ? latest < targetLatest : latest > targetLatest) : false;
 
@@ -2329,81 +2350,53 @@ datasets.push({
       setList('rcaList', showRca ? dedupe(rca.length ? rca : ['No major RCA issue detected in the visible view.']).slice(0, 3) : []);
       setList('actionList', showActions ? dedupe(actions).slice(0, 3) : []);
     }
-function renderDualMetricInsights(primaryMetric, secondaryMetric, primaryValues, secondaryValues, primarySettings, secondarySettings) {
-  const highlights = [];
-  const rca = [];
-  const actions = [];
 
-  const pLatest = lastNonNull(primaryValues);
-  const pPrev = previousNonNull(primaryValues);
-  const sLatest = lastNonNull(secondaryValues);
-  const sPrev = previousNonNull(secondaryValues);
+    function renderDualMetricInsights(primaryMetric, secondaryMetric, primaryValues, secondaryValues, primarySettings, secondarySettings) {
+      const highlights = [];
+      const rca = [];
+      const actions = [];
 
-  const pDiff = (pLatest !== null && pPrev !== null) ? round2(pLatest - pPrev) : null;
-  const sDiff = (sLatest !== null && sPrev !== null) ? round2(sLatest - sPrev) : null;
+      const pLatest = lastNonNull(primaryValues);
+      const pPrev = previousNonNull(primaryValues);
+      const sLatest = lastNonNull(secondaryValues);
+      const sPrev = previousNonNull(secondaryValues);
 
-  if (pDiff !== null) {
-    highlights.push(`${primaryMetric} ${pDiff >= 0 ? 'changed up' : 'changed down'} by ${Math.abs(pDiff)}${primarySettings.unit || ''} versus prior period.`);
-  }
+      const pDiff = (pLatest !== null && pPrev !== null) ? round2(pLatest - pPrev) : null;
+      const sDiff = (sLatest !== null && sPrev !== null) ? round2(sLatest - sPrev) : null;
 
-  if (sDiff !== null) {
-    highlights.push(`${secondaryMetric} ${sDiff >= 0 ? 'changed up' : 'changed down'} by ${Math.abs(sDiff)}${secondarySettings.unit || ''} versus prior period.`);
-  }
+      if (pDiff !== null) highlights.push(`${primaryMetric} ${pDiff >= 0 ? 'changed up' : 'changed down'} by ${Math.abs(pDiff)}${primarySettings.unit || ''} versus prior period.`);
+      if (sDiff !== null) highlights.push(`${secondaryMetric} ${sDiff >= 0 ? 'changed up' : 'changed down'} by ${Math.abs(sDiff)}${secondarySettings.unit || ''} versus prior period.`);
 
-  const primaryGood = pDiff !== null
-    ? (primarySettings.higherIsBetter ? pDiff > 0 : pDiff < 0)
-    : null;
+      const primaryGood = pDiff !== null ? (primarySettings.higherIsBetter ? pDiff > 0 : pDiff < 0) : null;
+      const secondaryGood = sDiff !== null ? (secondarySettings.higherIsBetter ? sDiff > 0 : sDiff < 0) : null;
 
-  const secondaryGood = sDiff !== null
-    ? (secondarySettings.higherIsBetter ? sDiff > 0 : sDiff < 0)
-    : null;
+      if (primaryGood !== null && secondaryGood !== null) {
+        if (primaryGood && secondaryGood) rca.push(`${primaryMetric} and ${secondaryMetric} both improved in the latest visible period, suggesting broadly supportive operating conditions.`);
+        else if (!primaryGood && !secondaryGood) rca.push(`${primaryMetric} and ${secondaryMetric} both worsened in the latest visible period, which may indicate common pressure from demand, staffing, or process issues.`);
+        else if (primaryGood && !secondaryGood) rca.push(`${primaryMetric} improved while ${secondaryMetric} worsened, suggesting the business may be trading off one outcome against the other.`);
+        else if (!primaryGood && secondaryGood) rca.push(`${secondaryMetric} improved but ${primaryMetric} weakened, so improvement in one metric is not yet translating into better overall performance.`);
+      }
 
-  if (primaryGood !== null && secondaryGood !== null) {
-    if (primaryGood && secondaryGood) {
-      rca.push(`${primaryMetric} and ${secondaryMetric} both improved in the latest visible period, suggesting broadly supportive operating conditions.`);
-    } else if (!primaryGood && !secondaryGood) {
-      rca.push(`${primaryMetric} and ${secondaryMetric} both worsened in the latest visible period, which may indicate common pressure from demand, staffing, or process issues.`);
-    } else if (primaryGood && !secondaryGood) {
-      rca.push(`${primaryMetric} improved while ${secondaryMetric} worsened, suggesting the business may be trading off one outcome against the other.`);
-    } else if (!primaryGood && secondaryGood) {
-      rca.push(`${secondaryMetric} improved but ${primaryMetric} weakened, so improvement in one metric is not yet translating into better overall performance.`);
+      const primaryTargetLatest = lastNonNull(buildSeries(primaryMetric).target || []);
+      if (primaryTargetLatest !== null && pLatest !== null) {
+        const onTarget = primarySettings.higherIsBetter ? pLatest >= primaryTargetLatest : pLatest <= primaryTargetLatest;
+        if (!onTarget) rca.push(`${primaryMetric} is still outside target in the latest visible period, so the relationship with ${secondaryMetric} should be reviewed in the context of target recovery.`);
+        else highlights.push(`${primaryMetric} is currently meeting target in the visible period.`);
+      }
+
+      actions.push(`Review the relationship between ${primaryMetric} and ${secondaryMetric} across the visible periods, especially around the latest movement.`);
+      actions.push(`Use filtered or segmented views to confirm whether the visible relationship is consistent across channels, teams, or sites.`);
+      actions.push(`Use this dual-metric chart when leadership needs context on whether movement in ${secondaryMetric} is helping or hurting ${primaryMetric}.`);
+
+      document.getElementById('insightBoxHighlights').style.display = '';
+      document.getElementById('insightBoxRca').style.display = '';
+      document.getElementById('insightBoxAction').style.display = '';
+
+      setList('highlightsList', dedupe(highlights).slice(0, 3));
+      setList('rcaList', dedupe(rca.length ? rca : [`No strong directional relationship was detected between ${primaryMetric} and ${secondaryMetric} in the visible view.`]).slice(0, 3));
+      setList('actionList', dedupe(actions).slice(0, 3));
     }
-  }
 
-  const primaryTargetLatest = lastNonNull(buildSeries(primaryMetric).target || []);
-  if (primaryTargetLatest !== null && pLatest !== null) {
-    const onTarget = primarySettings.higherIsBetter ? pLatest >= primaryTargetLatest : pLatest <= primaryTargetLatest;
-    if (!onTarget) {
-      rca.push(`${primaryMetric} is still outside target in the latest visible period, so the relationship with ${secondaryMetric} should be reviewed in the context of target recovery.`);
-    } else {
-      highlights.push(`${primaryMetric} is currently meeting target in the visible period.`);
-    }
-  }
-
-  const pRange = primaryValues.filter(v => v !== null);
-  const sRange = secondaryValues.filter(v => v !== null);
-
-  if (pRange.length > 2 && sRange.length > 2) {
-    const pMin = Math.min(...pRange);
-    const pMax = Math.max(...pRange);
-    const sMin = Math.min(...sRange);
-    const sMax = Math.max(...sRange);
-
-    highlights.push(`${primaryMetric} ranged from ${pMin}${primarySettings.unit || ''} to ${pMax}${primarySettings.unit || ''}, while ${secondaryMetric} ranged from ${sMin}${secondarySettings.unit || ''} to ${sMax}${secondarySettings.unit || ''}.`);
-  }
-
-  actions.push(`Review the relationship between ${primaryMetric} and ${secondaryMetric} across the visible periods, especially around the latest movement.`);
-  actions.push(`Use filtered or segmented views to confirm whether the visible relationship is consistent across channels, teams, or sites.`);
-  actions.push(`Use this dual-metric chart when leadership needs context on whether movement in ${secondaryMetric} is helping or hurting ${primaryMetric}.`);
-
-  document.getElementById('insightBoxHighlights').style.display = '';
-  document.getElementById('insightBoxRca').style.display = '';
-  document.getElementById('insightBoxAction').style.display = '';
-
-  setList('highlightsList', dedupe(highlights).slice(0, 3));
-  setList('rcaList', dedupe(rca.length ? rca : [`No strong directional relationship was detected between ${primaryMetric} and ${secondaryMetric} in the visible view.`]).slice(0, 3));
-  setList('actionList', dedupe(actions).slice(0, 3));
-}
     function renderSnapshots() {
       const metricCards = state.metrics.map(metric => {
         const { actualSeries, target, settings } = buildSeries(metric);
@@ -2411,7 +2404,6 @@ function renderDualMetricInsights(primaryMetric, secondaryMetric, primaryValues,
         const compare = lastNonNull(target);
         const prev = previousNonNull(actualSeries[0]?.values || []);
         const arrow = getArrowInfo(latest, compare, prev, settings.higherIsBetter);
-
         return {
           metric,
           latest,
@@ -2481,12 +2473,10 @@ function renderDualMetricInsights(primaryMetric, secondaryMetric, primaryValues,
 
     function setViewMode(mode) {
       state.currentMode = mode;
-
       document.getElementById('weeklyBtn').classList.toggle('active', mode === 'weekly');
       document.getElementById('monthlyBtn').classList.toggle('active', mode === 'monthly');
       document.getElementById('modeWeeklyStudio').classList.toggle('active', mode === 'weekly');
       document.getElementById('modeMonthlyStudio').classList.toggle('active', mode === 'monthly');
-
       renderChart();
       renderExecutiveSummary();
     }
@@ -2494,43 +2484,34 @@ function renderDualMetricInsights(primaryMetric, secondaryMetric, primaryValues,
     function syncStudioControls() {
       document.getElementById('metricSelect').value = state.currentMetric;
       const buildModeValue = document.getElementById('buildModeSelect').value;
+      if (buildModeValue === 'overall') document.getElementById('breakdownModeSelect').value = 'overall';
+      else if (buildModeValue === 'compare') document.getElementById('breakdownModeSelect').value = 'compare';
+    }
 
-      if (buildModeValue === 'overall') {
-        document.getElementById('breakdownModeSelect').value = 'overall';
-      } else if (buildModeValue === 'compare') {
-        document.getElementById('breakdownModeSelect').value = 'compare';
+    function handleControlChange(eventSourceId = '') {
+      state.currentMetric = document.getElementById('metricSelect').value;
+
+      if (eventSourceId === 'buildModeSelect') {
+        const buildModeValue = document.getElementById('buildModeSelect').value;
+        if (buildModeValue === 'overall') document.getElementById('breakdownModeSelect').value = 'overall';
+        else if (buildModeValue === 'compare') document.getElementById('breakdownModeSelect').value = 'compare';
+        else if (buildModeValue === 'filter') document.getElementById('breakdownModeSelect').value = 'overall';
       }
+
+      if (eventSourceId === 'dimensionSelect') fillDimensionValueSelect();
+
+      if (['metricSelect','chartModeSelect','secondaryMetricSelect','breakdownModeSelect'].includes(eventSourceId)) {
+        state.slideTitleTouched = false;
+        state.customSlideTitle = '';
+      }
+
+      if (eventSourceId === 'metricSelect') populateSecondaryMetricSelect();
+
+      renderMetricList();
+      renderChart();
+      renderSnapshots();
+      renderExecutiveSummary();
     }
-
-function handleControlChange(eventSourceId = '') {
-  state.currentMetric = document.getElementById('metricSelect').value;
-
-  if (eventSourceId === 'buildModeSelect') {
-    const buildModeValue = document.getElementById('buildModeSelect').value;
-    if (buildModeValue === 'overall') {
-      document.getElementById('breakdownModeSelect').value = 'overall';
-    } else if (buildModeValue === 'compare') {
-      document.getElementById('breakdownModeSelect').value = 'compare';
-    } else if (buildModeValue === 'filter') {
-      document.getElementById('breakdownModeSelect').value = 'overall';
-    }
-  }
-
-  if (eventSourceId === 'dimensionSelect') {
-    fillDimensionValueSelect();
-  }
-
-  if (eventSourceId === 'metricSelect') {
-  state.slideTitleTouched = false;
-  state.customSlideTitle = '';
-  populateSecondaryMetricSelect();
-}
-
-  renderMetricList();
-  renderChart();
-  renderSnapshots();
-  renderExecutiveSummary();
-}
 
     function exportPNG() {
       if (!state.chart) return;
@@ -2543,7 +2524,6 @@ function handleControlChange(eventSourceId = '') {
 
     function exportPDF() {
       if (!state.chart) return;
-
       const title = document.getElementById('slideTitleInput').value || document.getElementById('chartTitle').textContent || buildChartTitle(state.currentMetric);
       const subtitle = document.getElementById('chartSubtitle').textContent;
       const aggregation = document.getElementById('aggregationLabel').textContent;
@@ -2580,11 +2560,9 @@ function handleControlChange(eventSourceId = '') {
       html += '<p>' + subtitle + '</p>';
       html += '<p><strong>' + aggregation + '</strong></p>';
       html += '<div class="chart-wrap"><img src="' + img + '" /></div>';
-
       if (highlights.length) html += '<h2>Highlights</h2><ul>' + highlights.map(t => '<li>' + t + '</li>').join('') + '</ul>';
       if (rca.length) html += '<h2>What went wrong / RCA</h2><ul>' + rca.map(t => '<li>' + t + '</li>').join('') + '</ul>';
       if (actions.length) html += '<h2>Action Plan</h2><ul>' + actions.map(t => '<li>' + t + '</li>').join('') + '</ul>';
-
       html += '</body></html>';
       popup.document.write(html);
       popup.document.close();
@@ -2608,614 +2586,591 @@ function handleControlChange(eventSourceId = '') {
     }
 
     async function handleClientLogoUpload(file) {
-      if (!file) {
-        state.clientLogoData = null;
-        return;
-      }
-      try {
-        state.clientLogoData = await readFileAsDataURL(file);
-      } catch (err) {
-        console.error('Logo upload failed:', err);
-        alert('Could not read the selected logo file.');
-      }
+      if (!file) { state.clientLogoData = null; return; }
+      try { state.clientLogoData = await readFileAsDataURL(file); }
+      catch (err) { console.error('Logo upload failed:', err); alert('Could not read the selected logo file.'); }
     }
+function getSelectedPptTheme() {
+  const selected = document.getElementById('presentationThemeSelect').value;
 
-    function getSelectedPptTheme() {
-      const selected = document.getElementById('presentationThemeSelect').value;
+  if (selected === 'Executive Blue') {
+    return {
+      name: 'Executive Blue',
+      bg: 'F4F8FC',
+      panel: 'FFFFFF',
+      panelAlt: 'EEF4FB',
+      header: '123A6D',
+      title: '0D1B34',
+      text: '20304D',
+      muted: '5D6B84',
+      accent: '2563EB',
+      accent2: '38BDF8',
+      success: '16A34A',
+      danger: 'DC2626',
+      warning: 'D97706',
+      border: 'D6E1F0',
+      kickerFill: 'E8F1FD',
+      kickerText: '1D4ED8',
+      footer: '6B7A94',
+      chartFrame: 'FFFFFF'
+    };
+  }
 
-      if (selected === 'Executive Blue') {
-        return {
-          name: 'Executive Blue',
-          bg: 'F4F8FC',
-          panel: 'FFFFFF',
-          panelAlt: 'EEF4FB',
-          header: '123A6D',
-          title: '0D1B34',
-          text: '20304D',
-          muted: '5D6B84',
-          accent: '2563EB',
-          accent2: '38BDF8',
-          success: '16A34A',
-          danger: 'DC2626',
-          warning: 'D97706',
-          border: 'D6E1F0',
-          kickerFill: 'E8F1FD',
-          kickerText: '1D4ED8',
-          footer: '6B7A94',
-          chartFrame: 'FFFFFF'
-        };
-      }
+  if (selected === 'Client Light') {
+    return {
+      name: 'Client Light',
+      bg: 'FFFFFF',
+      panel: 'FFFFFF',
+      panelAlt: 'F8FAFC',
+      header: 'E2E8F0',
+      title: '0F172A',
+      text: '1E293B',
+      muted: '64748B',
+      accent: '0EA5E9',
+      accent2: '14B8A6',
+      success: '16A34A',
+      danger: 'DC2626',
+      warning: 'CA8A04',
+      border: 'CBD5E1',
+      kickerFill: 'ECFEFF',
+      kickerText: '0F766E',
+      footer: '64748B',
+      chartFrame: 'F8FAFC'
+    };
+  }
 
-      if (selected === 'Client Light') {
-        return {
-          name: 'Client Light',
-          bg: 'FFFFFF',
-          panel: 'FFFFFF',
-          panelAlt: 'F8FAFC',
-          header: 'E2E8F0',
-          title: '0F172A',
-          text: '1E293B',
-          muted: '64748B',
-          accent: '0EA5E9',
-          accent2: '14B8A6',
-          success: '16A34A',
-          danger: 'DC2626',
-          warning: 'CA8A04',
-          border: 'CBD5E1',
-          kickerFill: 'ECFEFF',
-          kickerText: '0F766E',
-          footer: '64748B',
-          chartFrame: 'F8FAFC'
-        };
-      }
+  return {
+    name: 'Stratos Dark',
+    bg: '0D1833',
+    panel: '162442',
+    panelAlt: '14223F',
+    header: '081124',
+    title: 'FFFFFF',
+    text: 'E8F2FF',
+    muted: 'AEBBD7',
+    accent: '38BDF8',
+    accent2: '8B5CF6',
+    success: '22C55E',
+    danger: 'EF4444',
+    warning: 'F59E0B',
+    border: '243452',
+    kickerFill: '102345',
+    kickerText: '8ADFFF',
+    footer: '8CA0C4',
+    chartFrame: '12203B'
+  };
+}
 
-      return {
-        name: 'Stratos Dark',
-        bg: '0D1833',
-        panel: '162442',
-        panelAlt: '14223F',
-        header: '081124',
-        title: 'FFFFFF',
-        text: 'E8F2FF',
-        muted: 'AEBBD7',
-        accent: '38BDF8',
-        accent2: '8B5CF6',
-        success: '22C55E',
-        danger: 'EF4444',
-        warning: 'F59E0B',
-        border: '243452',
-        kickerFill: '102345',
-        kickerText: '8ADFFF',
-        footer: '8CA0C4',
-        chartFrame: '12203B'
-      };
+function getChartImageForPpt() {
+  if (!state.chart) return '';
+
+  const src = state.chart.canvas;
+  const scale = 2;
+  const canvas = document.createElement('canvas');
+  canvas.width = src.width * scale;
+  canvas.height = src.height * scale;
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+  ctx.fillStyle = '#0d1833';
+  ctx.fillRect(0, 0, src.width, src.height);
+  ctx.drawImage(src, 0, 0);
+
+  return canvas.toDataURL('image/png', 1.0);
+}
+function pptAddHeader(slide, title, subtitle, theme) {
+  slide.addShape('rect', {
+    x: 0,
+    y: 0,
+    w: 13.33,
+    h: 0.75,
+    line: { color: theme.header, transparency: 100 },
+    fill: { color: theme.header }
+  });
+
+  slide.addShape('rect', {
+    x: 0,
+    y: 0.75,
+    w: 13.33,
+    h: 0.03,
+    line: { color: theme.accent, transparency: 100 },
+    fill: { color: theme.accent }
+  });
+
+  slide.addText(title, {
+    x: 0.55,
+    y: 0.18,
+    w: 7.6,
+    h: 0.24,
+    fontSize: 22,
+    bold: true,
+    color: theme.title
+  });
+
+  slide.addText(subtitle || '', {
+    x: 0.55,
+    y: 0.46,
+    w: 8.0,
+    h: 0.16,
+    fontSize: 9.5,
+    color: theme.muted
+  });
+
+  if (state.clientLogoData) {
+    slide.addImage({
+      data: state.clientLogoData,
+      x: 11.35,
+      y: 0.12,
+      w: 1.2,
+      h: 0.42,
+      contain: true
+    });
+  } else {
+    slide.addShape('rect', {
+      x: 11.1,
+      y: 0.12,
+      w: 1.45,
+      h: 0.42,
+      line: { color: theme.border, pt: 1, dash: 'dash' },
+      fill: { color: theme.panel }
+    });
+
+    slide.addText('Client Logo', {
+      x: 11.14,
+      y: 0.23,
+      w: 1.34,
+      h: 0.1,
+      fontSize: 7.5,
+      color: theme.muted,
+      align: 'center'
+    });
+  }
+}
+
+function pptAddFooter(slide, theme, leftText = 'Stratos Reporting Studio', rightText = 'Confidential') {
+  slide.addShape('rect', {
+    x: 0,
+    y: 7.15,
+    w: 13.33,
+    h: 0.12,
+    line: { color: theme.header, transparency: 100 },
+    fill: { color: theme.header }
+  });
+
+  slide.addText(leftText, {
+    x: 0.55,
+    y: 7.0,
+    w: 3.5,
+    h: 0.12,
+    fontSize: 8,
+    color: theme.footer
+  });
+
+  slide.addText(rightText, {
+    x: 10.3,
+    y: 7.0,
+    w: 2.4,
+    h: 0.12,
+    fontSize: 8,
+    color: theme.footer,
+    align: 'right'
+  });
+}
+
+function pptAddKicker(slide, text, x, y, w, theme) {
+  slide.addShape('rect', {
+    x, y, w, h: 0.24,
+    line: { color: theme.kickerFill, transparency: 100 },
+    fill: { color: theme.kickerFill }
+  });
+
+  slide.addText(text, {
+    x: x + 0.08,
+    y: y + 0.03,
+    w: w - 0.16,
+    h: 0.12,
+    fontSize: 8.5,
+    color: theme.kickerText,
+    bold: true,
+    align: 'center'
+  });
+}
+
+function addSimpleTextBox(slide, title, items, x, y, w, h, accentColor, theme) {
+  slide.addShape('rect', {
+    x, y, w, h,
+    line: { color: theme.border, pt: 1 },
+    fill: { color: theme.panel }
+  });
+
+  slide.addShape('rect', {
+    x, y, w: 0.1, h,
+    line: { color: accentColor, transparency: 100 },
+    fill: { color: accentColor }
+  });
+
+  slide.addText(title, {
+    x: x + 0.18,
+    y: y + 0.10,
+    w: w - 0.24,
+    h: 0.2,
+    fontSize: 11,
+    bold: true,
+    color: theme.title
+  });
+
+  const safeItems = (items && items.length) ? items : ['No major issue detected in the visible view.'];
+  const text = safeItems.map(item => '• ' + item).join('\n');
+
+  slide.addText(text, {
+    x: x + 0.18,
+    y: y + 0.38,
+    w: w - 0.28,
+    h: h - 0.48,
+    fontSize: 9,
+    color: theme.text,
+    margin: 0.03,
+    valign: 'top',
+    breakLine: false
+  });
+}
+function addBannerCard(slide, title, body, x, y, w, h, theme) {
+  slide.addShape('rect', {
+    x, y, w, h,
+    line: { color: theme.border, pt: 1 },
+    fill: { color: theme.panelAlt }
+  });
+
+  slide.addShape('rect', {
+    x, y, w, h: 0.08,
+    line: { color: theme.accent, transparency: 100 },
+    fill: { color: theme.accent }
+  });
+
+  slide.addText(title, {
+    x: x + 0.18,
+    y: y + 0.16,
+    w: 2.8,
+    h: 0.18,
+    fontSize: 11,
+    bold: true,
+    color: theme.kickerText
+  });
+
+  slide.addText(body, {
+    x: x + 0.18,
+    y: y + 0.42,
+    w: w - 0.32,
+    h: h - 0.52,
+    fontSize: 11,
+    color: theme.text,
+    margin: 0.03
+  });
+}
+
+function addMetricSnapshotCard(slide, card, x, y, w, h, accentColor, theme) {
+  slide.addShape('rect', {
+    x, y, w, h,
+    line: { color: theme.border, pt: 1 },
+    fill: { color: theme.panel }
+  });
+
+  slide.addShape('rect', {
+    x, y, w: 0.12, h,
+    line: { color: accentColor, transparency: 100 },
+    fill: { color: accentColor }
+  });
+
+  slide.addText(card.metric, {
+    x: x + 0.22,
+    y: y + 0.14,
+    w: 2.8,
+    h: 0.18,
+    fontSize: 10,
+    bold: true,
+    color: theme.muted
+  });
+
+  slide.addText(`${card.latest ?? '-'}${card.unit}`, {
+    x: x + 0.22,
+    y: y + 0.42,
+    w: 3.0,
+    h: 0.28,
+    fontSize: 20,
+    bold: true,
+    color: theme.title
+  });
+
+  slide.addText(
+    card.target !== null ? `Target ${card.target}${card.unit}` : 'Trend based KPI',
+    {
+      x: x + 0.22,
+      y: y + 0.84,
+      w: w - 0.35,
+      h: 0.16,
+      fontSize: 9,
+      color: theme.text
     }
+  );
+}
 
-    function getChartImageForPpt() {
-      if (!state.chart) return '';
+async function exportPPT() {
+  const PptxClass = getPptLibrary();
 
-      const src = state.chart.canvas;
-      const scale = 2;
-      const canvas = document.createElement('canvas');
-      canvas.width = src.width * scale;
-      canvas.height = src.height * scale;
+  if (!PptxClass) {
+    alert('PowerPoint library did not load. Please refresh and try again.');
+    return;
+  }
 
-      const ctx = canvas.getContext('2d');
-      ctx.scale(scale, scale);
-      ctx.fillStyle = '#0d1833';
-      ctx.fillRect(0, 0, src.width, src.height);
-      ctx.drawImage(src, 0, 0);
+  if (!state.chart || !state.metrics.length) {
+    alert('Please load data first before exporting PowerPoint.');
+    return;
+  }
 
-      return canvas.toDataURL('image/png', 1.0);
-    }
+  const exportBtn = document.getElementById('exportPptBtn');
+  const oldText = exportBtn.textContent;
+  exportBtn.disabled = true;
+  exportBtn.textContent = 'Exporting...';
 
-    function pptAddHeader(slide, title, subtitle, theme) {
+  const originalMetric = state.currentMetric;
+  const originalMetricSelect = document.getElementById('metricSelect').value;
+  const originalBreakdown = document.getElementById('breakdownModeSelect').value;
+  const originalSummary = document.getElementById('summaryBlocksSelect').value;
+  const originalTouched = state.slideTitleTouched;
+  const originalCustomTitle = state.customSlideTitle;
+
+  try {
+    const pptx = new PptxClass();
+    const theme = getSelectedPptTheme();
+
+    pptx.layout = 'LAYOUT_WIDE';
+    pptx.author = 'Stratos Reporting Studio';
+    pptx.company = 'Stratos Reporting Studio';
+    pptx.subject = 'Operational Performance Review';
+    pptx.title = 'Operational Performance Review';
+    pptx.lang = 'en-US';
+
+    const reportMode = state.currentMode === 'weekly' ? 'Weekly Review' : 'Monthly Review';
+    const filterText = buildAppliedFiltersText() || 'All filters';
+    const exportDate = new Date().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+
+    let slide = pptx.addSlide();
+    slide.background = { color: theme.bg };
+
+    slide.addShape('rect', {
+      x: 0, y: 0, w: 13.33, h: 7.5,
+      line: { color: theme.bg, transparency: 100 },
+      fill: { color: theme.bg }
+    });
+
+    slide.addShape('rect', {
+      x: 0, y: 0, w: 13.33, h: 0.12,
+      line: { color: theme.accent, transparency: 100 },
+      fill: { color: theme.accent }
+    });
+
+    slide.addShape('rect', {
+      x: 0.6, y: 1.15, w: 0.16, h: 2.35,
+      line: { color: theme.accent, transparency: 100 },
+      fill: { color: theme.accent }
+    });
+
+    slide.addText('Operational Performance Review', {
+      x: 1.0, y: 1.2, w: 7.8, h: 0.52,
+      fontSize: 28, bold: true, color: theme.title
+    });
+
+    slide.addText('Executive-ready reporting deck generated from Stratos Reporting Studio', {
+      x: 1.0, y: 1.84, w: 7.5, h: 0.22,
+      fontSize: 12, color: theme.muted
+    });
+
+    pptAddKicker(slide, reportMode, 1.0, 2.24, 1.7, theme);
+    pptAddKicker(slide, exportDate, 2.9, 2.24, 1.65, theme);
+
+    slide.addShape('rect', {
+      x: 0.95, y: 2.75, w: 5.9, h: 1.12,
+      line: { color: theme.border, pt: 1 },
+      fill: { color: theme.panel }
+    });
+
+    slide.addText('Filters', {
+      x: 1.15, y: 2.95, w: 1.1, h: 0.16,
+      fontSize: 10, bold: true, color: theme.kickerText
+    });
+
+    slide.addText(filterText, {
+      x: 1.15, y: 3.2, w: 5.35, h: 0.36,
+      fontSize: 11, color: theme.text
+    });
+
+    if (state.clientLogoData) {
+      slide.addImage({
+        data: state.clientLogoData,
+        x: 10.6,
+        y: 4.9,
+        w: 1.65,
+        h: 0.7,
+        contain: true
+      });
+    } else {
       slide.addShape('rect', {
-        x: 0,
-        y: 0,
-        w: 13.33,
-        h: 0.75,
-        line: { color: theme.header, transparency: 100 },
-        fill: { color: theme.header }
+        x: 9.95, y: 4.9, w: 2.3, h: 0.72,
+        line: { color: theme.border, pt: 1, dash: 'dash' },
+        fill: { color: theme.panelAlt }
       });
 
-      slide.addShape('rect', {
-        x: 0,
-        y: 0.75,
-        w: 13.33,
-        h: 0.03,
-        line: { color: theme.accent, transparency: 100 },
-        fill: { color: theme.accent }
-      });
-
-      slide.addText(title, {
-        x: 0.55,
-        y: 0.18,
-        w: 7.5,
-        h: 0.24,
-        fontSize: 22,
-        bold: true,
-        color: theme.title
-      });
-
-      slide.addText(subtitle || '', {
-        x: 0.55,
-        y: 0.46,
-        w: 7.5,
-        h: 0.16,
-        fontSize: 9.5,
-        color: theme.muted
-      });
-
-      if (state.clientLogoData) {
-        slide.addImage({
-          data: state.clientLogoData,
-          x: 11.4,
-          y: 0.12,
-          w: 1.15,
-          h: 0.42,
-          contain: true
-        });
-      } else {
-        slide.addShape('rect', {
-          x: 11.1,
-          y: 0.12,
-          w: 1.45,
-          h: 0.42,
-          line: { color: theme.border, pt: 1, dash: 'dash' },
-          fill: { color: theme.panel }
-        });
-
-        slide.addText('Client Logo', {
-          x: 11.16,
-          y: 0.23,
-          w: 1.3,
-          h: 0.1,
-          fontSize: 7.5,
-          color: theme.muted,
-          align: 'center'
-        });
-      }
-    }
-
-    function pptAddFooter(slide, theme, leftText = 'Stratos Reporting Studio', rightText = 'Confidential') {
-      slide.addShape('rect', {
-        x: 0,
-        y: 7.15,
-        w: 13.33,
-        h: 0.12,
-        line: { color: theme.header, transparency: 100 },
-        fill: { color: theme.header }
-      });
-
-      slide.addText(leftText, {
-        x: 0.55,
-        y: 7.0,
-        w: 3.5,
-        h: 0.12,
-        fontSize: 8,
-        color: theme.footer
-      });
-
-      slide.addText(rightText, {
-        x: 10.3,
-        y: 7.0,
-        w: 2.4,
-        h: 0.12,
-        fontSize: 8,
-        color: theme.footer,
-        align: 'right'
-      });
-    }
-
-    function pptAddKicker(slide, text, x, y, w, theme) {
-      slide.addShape('rect', {
-        x, y, w, h: 0.24,
-        line: { color: theme.kickerFill, transparency: 100 },
-        fill: { color: theme.kickerFill }
-      });
-
-      slide.addText(text, {
-        x: x + 0.08,
-        y: y + 0.03,
-        w: w - 0.16,
-        h: 0.12,
+      slide.addText('Optional Client Logo', {
+        x: 10.1, y: 5.15, w: 2.0, h: 0.12,
         fontSize: 8.5,
-        color: theme.kickerText,
-        bold: true,
+        color: theme.muted,
         align: 'center'
       });
     }
 
-    function addSimpleTextBox(slide, title, items, x, y, w, h, accentColor, theme) {
-      slide.addShape('rect', {
-        x, y, w, h,
-        line: { color: theme.border, pt: 1 },
-        fill: { color: theme.panel }
-      });
+    slide.addShape('rect', {
+      x: 0.6, y: 6.75, w: 12.15, h: 0.02,
+      line: { color: theme.border, transparency: 100 },
+      fill: { color: theme.border }
+    });
 
-      slide.addShape('rect', {
-        x, y, w: 0.1, h,
-        line: { color: accentColor, transparency: 100 },
-        fill: { color: accentColor }
-      });
+    slide.addText('Confidential - Internal Operations Review', {
+      x: 0.6, y: 6.92, w: 3.8, h: 0.12,
+      fontSize: 8.5, color: theme.footer
+    });
 
-      slide.addText(title, {
-        x: x + 0.18,
-        y: y + 0.10,
-        w: w - 0.24,
-        h: 0.2,
-        fontSize: 11,
-        bold: true,
-        color: theme.title
-      });
-
-      const safeItems = (items && items.length) ? items : ['No major issue detected in the visible view.'];
-      const text = safeItems.map(item => '• ' + item).join('\n');
-
-      slide.addText(text, {
-        x: x + 0.18,
-        y: y + 0.38,
-        w: w - 0.28,
-        h: h - 0.48,
-        fontSize: 9,
-        color: theme.text,
-        margin: 0.03,
-        valign: 'top',
-        breakLine: false
-      });
-    }
-
-    function addBannerCard(slide, title, body, x, y, w, h, theme) {
-      slide.addShape('rect', {
-        x, y, w, h,
-        line: { color: theme.border, pt: 1 },
-        fill: { color: theme.panelAlt }
-      });
-
-      slide.addShape('rect', {
-        x, y, w, h: 0.08,
-        line: { color: theme.accent, transparency: 100 },
-        fill: { color: theme.accent }
-      });
-
-      slide.addText(title, {
-        x: x + 0.18,
-        y: y + 0.16,
-        w: 2.8,
-        h: 0.18,
-        fontSize: 11,
-        bold: true,
-        color: theme.kickerText
-      });
-
-      slide.addText(body, {
-        x: x + 0.18,
-        y: y + 0.42,
-        w: w - 0.32,
-        h: h - 0.52,
-        fontSize: 11,
-        color: theme.text,
-        margin: 0.03
-      });
-    }
-
-    function addMetricSnapshotCard(slide, card, x, y, w, h, accentColor, theme) {
-      slide.addShape('rect', {
-        x, y, w, h,
-        line: { color: theme.border, pt: 1 },
-        fill: { color: theme.panel }
-      });
-
-      slide.addShape('rect', {
-        x, y, w: 0.12, h,
-        line: { color: accentColor, transparency: 100 },
-        fill: { color: accentColor }
-      });
-
-      slide.addText(card.metric, {
-        x: x + 0.22, y: y + 0.14, w: 2.8, h: 0.18,
-        fontSize: 10, bold: true, color: theme.muted
-      });
-
-      slide.addText(`${card.latest ?? '-'}${card.unit}`, {
-        x: x + 0.22, y: y + 0.42, w: 3.0, h: 0.28,
-        fontSize: 20, bold: true, color: theme.title
-      });
-
-      slide.addText(
-        card.target !== null ? `Target ${card.target}${card.unit}` : 'Trend based KPI',
-        {
-          x: x + 0.22, y: y + 0.84, w: w - 0.35, h: 0.16,
-          fontSize: 9, color: theme.text
-        }
-      );
-    }
-
-    function buildAppliedFiltersText() {
-      const parts = [];
-      ['lobFilter','channelFilter','siteFilter','teamFilter'].forEach(id => {
-        const el = document.getElementById(id);
-        const label = el.previousElementSibling ? el.previousElementSibling.textContent : id;
-        if (el && el.value && el.value !== 'All') {
-          parts.push(label + ': ' + el.value);
-        }
-      });
-      return parts.join(' | ');
-    }
-
-    async function exportPPT() {
-      const PptxClass = getPptLibrary();
-
-      if (!PptxClass) {
-        alert('PowerPoint library did not load. Please refresh and try again.');
-        return;
-      }
-
-      if (!state.chart || !state.metrics.length) {
-        alert('Please load data first before exporting PowerPoint.');
-        return;
-      }
-
-      const exportBtn = document.getElementById('exportPptBtn');
-      const oldText = exportBtn.textContent;
-      exportBtn.disabled = true;
-      exportBtn.textContent = 'Exporting...';
-
-      const originalMetric = state.currentMetric;
-      const originalMetricSelect = document.getElementById('metricSelect').value;
-      const originalBreakdown = document.getElementById('breakdownModeSelect').value;
-      const originalSummary = document.getElementById('summaryBlocksSelect').value;
-
-      try {
-        const pptx = new PptxClass();
-        const theme = getSelectedPptTheme();
-
-        pptx.layout = 'LAYOUT_WIDE';
-        pptx.author = 'Stratos Reporting Studio';
-        pptx.company = 'Stratos Reporting Studio';
-        pptx.subject = 'Operational Performance Review';
-        pptx.title = 'Operational Performance Review';
-        pptx.lang = 'en-US';
-
-        const reportMode = state.currentMode === 'weekly' ? 'Weekly Review' : 'Monthly Review';
-        const filterText = buildAppliedFiltersText() || 'All filters';
-        const exportDate = new Date().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
-
-        let slide = pptx.addSlide();
-        slide.background = { color: theme.bg };
-
-        slide.addShape('rect', {
-          x: 0, y: 0, w: 13.33, h: 7.5,
-          line: { color: theme.bg, transparency: 100 },
-          fill: { color: theme.bg }
-        });
-
-        slide.addShape('rect', {
-          x: 0, y: 0, w: 13.33, h: 0.12,
-          line: { color: theme.accent, transparency: 100 },
-          fill: { color: theme.accent }
-        });
-
-        slide.addShape('rect', {
-          x: 0.6, y: 1.15, w: 0.16, h: 2.35,
-          line: { color: theme.accent, transparency: 100 },
-          fill: { color: theme.accent }
-        });
-
-        slide.addText('Operational Performance Review', {
-          x: 1.0, y: 1.2, w: 7.8, h: 0.52,
-          fontSize: 28, bold: true, color: theme.title
-        });
-
-        slide.addText('Executive-ready reporting deck generated from Stratos Reporting Studio', {
-          x: 1.0, y: 1.84, w: 7.5, h: 0.22,
-          fontSize: 12, color: theme.muted
-        });
-
-        pptAddKicker(slide, reportMode, 1.0, 2.24, 1.7, theme);
-        pptAddKicker(slide, exportDate, 2.9, 2.24, 1.65, theme);
-
-        slide.addShape('rect', {
-          x: 0.95, y: 2.75, w: 5.9, h: 1.12,
-          line: { color: theme.border, pt: 1 },
-          fill: { color: theme.panel }
-        });
-
-        slide.addText('Filters', {
-          x: 1.15, y: 2.95, w: 1.1, h: 0.16,
-          fontSize: 10, bold: true, color: theme.kickerText
-        });
-
-        slide.addText(filterText, {
-          x: 1.15, y: 3.2, w: 5.35, h: 0.36,
-          fontSize: 11, color: theme.text
-        });
-
-        slide.addShape('rect', {
-          x: 8.4, y: 1.2, w: 3.8, h: 2.3,
-          line: { color: theme.border, pt: 1 },
-          fill: { color: theme.panel }
-        });
-
-        slide.addText('Generated By', {
-          x: 8.65, y: 1.55, w: 2.2, h: 0.16,
-          fontSize: 10, bold: true, color: theme.kickerText
-        });
-
-        slide.addText('Stratos Reporting Studio', {
-          x: 8.65, y: 1.9, w: 2.9, h: 0.22,
-          fontSize: 16, bold: true, color: theme.title
-        });
-
-        slide.addText('Leadership deck with KPI snapshots, commentary, RCA and action plans', {
-          x: 8.65, y: 2.35, w: 3.1, h: 0.55,
-          fontSize: 10, color: theme.text
-        });
-
-        if (state.clientLogoData) {
-          slide.addImage({
-            data: state.clientLogoData,
-            x: 10.6,
-            y: 4.9,
-            w: 1.65,
-            h: 0.7,
-            contain: true
-          });
-        } else {
-          slide.addShape('rect', {
-            x: 9.95, y: 4.9, w: 2.3, h: 0.72,
-            line: { color: theme.border, pt: 1, dash: 'dash' },
-            fill: { color: theme.panelAlt }
-          });
-
-          slide.addText('Optional Client Logo', {
-            x: 10.1, y: 5.15, w: 2.0, h: 0.12,
-            fontSize: 8.5,
-            color: theme.muted,
-            align: 'center'
-          });
-        }
-
-        slide.addShape('rect', {
-          x: 0.6, y: 6.75, w: 12.15, h: 0.02,
-          line: { color: theme.border, transparency: 100 },
-          fill: { color: theme.border }
-        });
-
-        slide.addText('Confidential - Internal Operations Review', {
-          x: 0.6, y: 6.92, w: 3.8, h: 0.12,
-          fontSize: 8.5, color: theme.footer
-        });
-
-        slide.addText('Prepared for leadership review', {
-          x: 10.1, y: 6.92, w: 2.6, h: 0.12,
-          fontSize: 8.5, color: theme.footer, align: 'right'
-        });
-
+    slide.addText('Prepared for leadership review', {
+      x: 10.1, y: 6.92, w: 2.6, h: 0.12,
+      fontSize: 8.5, color: theme.footer, align: 'right'
+    });
         slide = pptx.addSlide();
-        slide.background = { color: theme.bg };
-        pptAddHeader(slide, 'Executive Summary', `${reportMode} • ${filterText}`, theme);
+    slide.background = { color: theme.bg };
+    pptAddHeader(slide, 'Executive Summary', `${reportMode} • ${filterText}`, theme);
 
-        const overallText = document.getElementById('execOverall').textContent || '';
-        const achievements = Array.from(document.querySelectorAll('#execAchievements li')).map(li => li.textContent);
-        const risks = Array.from(document.querySelectorAll('#execRisks li')).map(li => li.textContent);
-        const actions = Array.from(document.querySelectorAll('#execActions li')).map(li => li.textContent);
+    const overallText = document.getElementById('execOverall').textContent || '';
+    const achievements = Array.from(document.querySelectorAll('#execAchievements li')).map(li => li.textContent);
+    const risks = Array.from(document.querySelectorAll('#execRisks li')).map(li => li.textContent);
+    const actions = Array.from(document.querySelectorAll('#execActions li')).map(li => li.textContent);
 
-        addBannerCard(slide, 'Overall Performance', overallText, 0.6, 1.0, 12.1, 1.2, theme);
+    addBannerCard(slide, 'Overall Performance', overallText, 0.6, 1.0, 12.1, 1.2, theme);
+    addSimpleTextBox(slide, 'Key Achievements', achievements, 0.6, 2.55, 3.85, 3.65, theme.success, theme);
+    addSimpleTextBox(slide, 'Key Risks', risks, 4.73, 2.55, 3.85, 3.65, theme.danger, theme);
+    addSimpleTextBox(slide, 'Priority Actions', actions, 8.86, 2.55, 3.85, 3.65, theme.accent, theme);
+    pptAddFooter(slide, theme);
 
-        addSimpleTextBox(slide, 'Key Achievements', achievements, 0.6, 2.55, 3.85, 3.65, theme.success, theme);
-        addSimpleTextBox(slide, 'Key Risks', risks, 4.73, 2.55, 3.85, 3.65, theme.danger, theme);
-        addSimpleTextBox(slide, 'Priority Actions', actions, 8.86, 2.55, 3.85, 3.65, theme.accent, theme);
+    slide = pptx.addSlide();
+    slide.background = { color: theme.bg };
+    pptAddHeader(slide, 'KPI Snapshot', `${reportMode} • Leadership summary`, theme);
 
-        pptAddFooter(slide, theme);
+    const snapshotCards = state.metrics.slice(0, 8).map(metric => {
+      const built = buildSeries(metric);
+      const latest = lastNonNull((built.actualSeries[0] || {}).values || []);
+      const target = lastNonNull(built.target || []);
+      return {
+        metric,
+        latest,
+        unit: built.settings.unit || '',
+        target
+      };
+    });
 
-        slide = pptx.addSlide();
-        slide.background = { color: theme.bg };
-        pptAddHeader(slide, 'KPI Snapshot', `${reportMode} • Leadership summary`, theme);
+    const accentCycle = [theme.accent, theme.accent2, theme.warning, theme.success, theme.danger, theme.accent, theme.accent2, theme.warning];
 
-        const snapshotCards = state.metrics.slice(0, 8).map(metric => {
-          const built = buildSeries(metric);
-          const latest = lastNonNull((built.actualSeries[0] || {}).values || []);
-          const target = lastNonNull(built.target || []);
-          return {
-            metric,
-            latest,
-            unit: built.settings.unit || '',
-            target
-          };
-        });
+    snapshotCards.forEach((card, idx) => {
+      const col = idx % 2;
+      const row = Math.floor(idx / 2);
+      const x = 0.6 + (col * 6.1);
+      const y = 1.15 + (row * 1.35);
+      addMetricSnapshotCard(slide, card, x, y, 5.72, 1.08, accentCycle[idx % accentCycle.length], theme);
+    });
 
-        const accentCycle = [theme.accent, theme.accent2, theme.warning, theme.success, theme.danger, theme.accent, theme.accent2, theme.warning];
+    pptAddFooter(slide, theme);
 
-        snapshotCards.forEach((card, idx) => {
-          const col = idx % 2;
-          const row = Math.floor(idx / 2);
-          const x = 0.6 + (col * 6.1);
-          const y = 1.15 + (row * 1.35);
-          addMetricSnapshotCard(slide, card, x, y, 5.72, 1.08, accentCycle[idx % accentCycle.length], theme);
-        });
+    for (const metric of state.metrics) {
+      state.currentMetric = metric;
+      document.getElementById('metricSelect').value = metric;
+      state.slideTitleTouched = false;
+      state.customSlideTitle = '';
+      renderMetricList();
+      renderChart();
+      renderSnapshots();
+      renderExecutiveSummary();
 
-        pptAddFooter(slide, theme);
+      await new Promise(resolve => requestAnimationFrame(() => resolve()));
 
-        for (const metric of state.metrics) {
-          state.currentMetric = metric;
-          document.getElementById('metricSelect').value = metric;
-          renderMetricList();
-          renderChart();
-          renderSnapshots();
-          renderExecutiveSummary();
+      const chartImage = getChartImageForPpt();
+      const highlights = Array.from(document.querySelectorAll('#highlightsList li')).map(li => li.textContent);
+      const rca = Array.from(document.querySelectorAll('#rcaList li')).map(li => li.textContent);
+      const action = Array.from(document.querySelectorAll('#actionList li')).map(li => li.textContent);
 
-          await new Promise(resolve => requestAnimationFrame(() => resolve()));
+      slide = pptx.addSlide();
+      slide.background = { color: theme.bg };
 
-          const chartImage = getChartImageForPpt();
-          const highlights = Array.from(document.querySelectorAll('#highlightsList li')).map(li => li.textContent);
-          const rca = Array.from(document.querySelectorAll('#rcaList li')).map(li => li.textContent);
-          const action = Array.from(document.querySelectorAll('#actionList li')).map(li => li.textContent);
+      const exportSlideTitle =
+        document.getElementById('slideTitleInput').value ||
+        document.getElementById('chartTitle').textContent ||
+        buildChartTitle(metric);
 
-          slide = pptx.addSlide();
-          slide.background = { color: theme.bg };
-          const exportSlideTitle = document.getElementById('slideTitleInput').value || document.getElementById('chartTitle').textContent || buildChartTitle(metric);
-pptAddHeader(slide, exportSlideTitle, document.getElementById('chartSubtitle').textContent || '', theme);
+      pptAddHeader(slide, exportSlideTitle, document.getElementById('chartSubtitle').textContent || '', theme);
+      pptAddKicker(slide, document.getElementById('aggregationLabel').textContent || 'Current view', 0.6, 0.86, 2.45, theme);
 
-          pptAddKicker(slide, document.getElementById('aggregationLabel').textContent || 'Current view', 0.6, 0.86, 2.45, theme);
+      slide.addShape('rect', {
+        x: 0.6, y: 1.18, w: 8.1, h: 3.98,
+        line: { color: theme.border, pt: 1 },
+        fill: { color: theme.chartFrame }
+      });
 
-          slide.addShape('rect', {
-            x: 0.6, y: 1.18, w: 8.1, h: 3.98,
-            line: { color: theme.border, pt: 1 },
-            fill: { color: theme.chartFrame }
-          });
+      slide.addImage({
+        data: chartImage,
+        x: 0.68, y: 1.27, w: 7.94, h: 3.78
+      });
 
-          slide.addImage({
-            data: chartImage,
-            x: 0.68, y: 1.27, w: 7.94, h: 3.78
-          });
+      addSimpleTextBox(slide, 'Highlights', highlights, 8.95, 1.18, 3.75, 1.92, theme.success, theme);
+      addSimpleTextBox(slide, 'What went wrong / RCA', rca, 8.95, 3.28, 3.75, 1.92, theme.danger, theme);
+      addSimpleTextBox(slide, 'Action Plan', action, 0.6, 5.42, 12.1, 1.32, theme.accent, theme);
 
-          addSimpleTextBox(slide, 'Highlights', highlights, 8.95, 1.18, 3.75, 1.92, theme.success, theme);
-          addSimpleTextBox(slide, 'What went wrong / RCA', rca, 8.95, 3.28, 3.75, 1.92, theme.danger, theme);
-          addSimpleTextBox(slide, 'Action Plan', action, 0.6, 5.42, 12.1, 1.32, theme.accent, theme);
-
-          pptAddFooter(slide, theme, 'Stratos Reporting Studio', metric);
-        }
-
-        state.currentMetric = originalMetric;
-        document.getElementById('metricSelect').value = originalMetricSelect;
-        document.getElementById('breakdownModeSelect').value = originalBreakdown;
-        document.getElementById('summaryBlocksSelect').value = originalSummary;
-        renderMetricList();
-        renderChart();
-        renderSnapshots();
-        renderExecutiveSummary();
-
-        await pptx.writeFile({ fileName: `Stratos_WBR_Report_${theme.name.replace(/\s+/g,'_')}.pptx` });
-      } catch (err) {
-        console.error('PPT export failed:', err);
-        alert('PPT export failed. Please press F12, open Console, and check the exact error.');
-      } finally {
-        exportBtn.disabled = false;
-        exportBtn.textContent = oldText;
-      }
+      pptAddFooter(slide, theme, 'Stratos Reporting Studio', metric);
     }
 
-    function downloadTemplate() {
-  const wb = XLSX.utils.book_new();
-  const ws1 = XLSX.utils.aoa_to_sheet(demoWorkbook.data);
-  const ws2 = XLSX.utils.aoa_to_sheet(demoWorkbook.settings);
-  const ws3 = XLSX.utils.aoa_to_sheet([
-    ['Instructions'],
-    ['1. Fill Data_Input with one row per metric per period per breakdown.'],
-    ['2. Maintain Metric_Settings with one row per KPI.'],
-    ['3. Date is recommended. Forecast is optional.'],
-    ['4. Previous period comparison is calculated automatically.'],
-    ['5. Add Weight when combining multiple rows into one KPI.'],
-    ['6. Use operational volume (contacts, audits, cases, etc.). Leave blank to use simple average.']
-  ]);
+    state.currentMetric = originalMetric;
+    document.getElementById('metricSelect').value = originalMetricSelect;
+    document.getElementById('breakdownModeSelect').value = originalBreakdown;
+    document.getElementById('summaryBlocksSelect').value = originalSummary;
+    state.slideTitleTouched = originalTouched;
+    state.customSlideTitle = originalCustomTitle;
+    renderMetricList();
+    renderChart();
+    renderSnapshots();
+    renderExecutiveSummary();
 
-  XLSX.utils.book_append_sheet(wb, ws1, 'Data_Input');
-  XLSX.utils.book_append_sheet(wb, ws2, 'Metric_Settings');
-  XLSX.utils.book_append_sheet(wb, ws3, 'Instructions');
-  XLSX.writeFile(wb, 'Stratos_Reporting_Studio_Template.xlsx');
+    await pptx.writeFile({ fileName: `Stratos_WBR_Report_${theme.name.replace(/\s+/g,'_')}.pptx` });
+  } catch (err) {
+    console.error('PPT export failed:', err);
+    alert('PPT export failed. Please press F12, open Console, and check the exact error.');
+  } finally {
+    exportBtn.disabled = false;
+    exportBtn.textContent = oldText;
+  }
 }
+    function downloadTemplate() {
+      const wb = XLSX.utils.book_new();
+      const ws1 = XLSX.utils.aoa_to_sheet(demoWorkbook.data);
+      const ws2 = XLSX.utils.aoa_to_sheet(demoWorkbook.settings);
+      const ws3 = XLSX.utils.aoa_to_sheet([
+        ['Instructions'],
+        ['1. Fill Data_Input with one row per metric per period per breakdown.'],
+        ['2. Maintain Metric_Settings with one row per KPI.'],
+        ['3. Date is recommended. Forecast is optional.'],
+        ['4. Previous period comparison is calculated automatically.'],
+        ['5. Add Weight when combining multiple rows into one KPI.'],
+        ['6. Use operational volume (contacts, audits, cases, etc.). Leave blank to use simple average.']
+      ]);
+      XLSX.utils.book_append_sheet(wb, ws1, 'Data_Input');
+      XLSX.utils.book_append_sheet(wb, ws2, 'Metric_Settings');
+      XLSX.utils.book_append_sheet(wb, ws3, 'Instructions');
+      XLSX.writeFile(wb, 'Stratos_Reporting_Studio_Template.xlsx');
+    }
+
     function loadDemo() {
       const dataObjects = XLSX.utils.sheet_to_json(XLSX.utils.aoa_to_sheet(demoWorkbook.data), { defval: '' });
       const settingsObjects = XLSX.utils.sheet_to_json(XLSX.utils.aoa_to_sheet(demoWorkbook.settings), { defval: '' });
@@ -3225,28 +3180,21 @@ pptAddHeader(slide, exportSlideTitle, document.getElementById('chartSubtitle').t
 
     function readUploadedFile(file) {
       const reader = new FileReader();
-
       reader.onload = e => {
         try {
           const data = new Uint8Array(e.target.result);
           const wb = XLSX.read(data, { type: 'array' });
           const dataSheet = wb.Sheets['Data_Input'];
           const settingsSheet = wb.Sheets['Metric_Settings'];
-
-          if (!dataSheet || !settingsSheet) {
-            throw new Error('Sheets Data_Input and Metric_Settings are both required.');
-          }
-
+          if (!dataSheet || !settingsSheet) throw new Error('Sheets Data_Input and Metric_Settings are both required.');
           const dataObjects = XLSX.utils.sheet_to_json(dataSheet, { defval: '' });
           const settingsObjects = XLSX.utils.sheet_to_json(settingsSheet, { defval: '' });
-
           renderUploadedTables(dataObjects, settingsObjects);
           loadWorkbook(dataObjects, settingsObjects, file.name);
         } catch (err) {
           alert(err.message || 'Could not read workbook.');
         }
       };
-
       reader.readAsArrayBuffer(file);
     }
 
@@ -3267,31 +3215,36 @@ pptAddHeader(slide, exportSlideTitle, document.getElementById('chartSubtitle').t
     document.getElementById('monthlyBtn').addEventListener('click', () => setViewMode('monthly'));
     document.getElementById('modeWeeklyStudio').addEventListener('click', () => setViewMode('weekly'));
     document.getElementById('modeMonthlyStudio').addEventListener('click', () => setViewMode('monthly'));
-document.getElementById('slideTitleInput').addEventListener('input', e => {
-  state.customSlideTitle = e.target.value.trim();
-  state.slideTitleTouched = true;
-});
+
+    document.getElementById('slideTitleInput').addEventListener('input', e => {
+      state.customSlideTitle = e.target.value.trim();
+      state.slideTitleTouched = true;
+      document.getElementById('chartTitle').textContent = state.customSlideTitle || buildChartTitle(state.currentMetric);
+    });
+
     [
-  'metricSelect',
-  'buildModeSelect',
-  'dimensionSelect',
-  'dimensionValueSelect',
-  'chartModeSelect',
-  'secondaryMetricSelect',
-  'chartTypeSelect',
-  'breakdownModeSelect',
-  'lobFilter',
-  'channelFilter',
-  'siteFilter',
-  'teamFilter',
-  'summaryBlocksSelect'
-].forEach(id => {
-  document.getElementById(id).addEventListener('change', () => handleControlChange(id));
-});
+      'metricSelect',
+      'buildModeSelect',
+      'dimensionSelect',
+      'dimensionValueSelect',
+      'chartModeSelect',
+      'secondaryMetricSelect',
+      'chartTypeSelect',
+      'breakdownModeSelect',
+      'lobFilter',
+      'channelFilter',
+      'siteFilter',
+      'teamFilter',
+      'summaryBlocksSelect'
+    ].forEach(id => {
+      document.getElementById(id).addEventListener('change', () => handleControlChange(id));
+    });
 
     document.getElementById('exportPngBtn').addEventListener('click', exportPNG);
     document.getElementById('exportPdfBtn').addEventListener('click', exportPDF);
+
     document.getElementById('exportPptBtn').addEventListener('click', exportPPT);
+    });
 
     loadDemo();
   </script>
