@@ -852,7 +852,7 @@
             <div class="card-header">
               <div>
                 <h3>Final Excel template design</h3>
-                <p>Use this structure for real uploads. Comparison against previous periods is calculated automatically from the uploaded time series. Add <b>Weight</b> if you want weighted overall actual and target.</p>
+               <p>Use this structure for real uploads. Comparison against previous periods is calculated automatically from the uploaded time series. The <b>Weight</b> column is optional and should contain the operational volume behind the KPI when you want weighted overall results.</p>
               </div>
             </div>
             <div class="card-body">
@@ -3174,7 +3174,6 @@ function handleControlChange(eventSourceId = '') {
     document.getElementById('modeMonthlyStudio').addEventListener('click', () => setViewMode('monthly'));
 
     [
-     [
   'metricSelect',
   'buildModeSelect',
   'dimensionSelect',
@@ -3188,10 +3187,9 @@ function handleControlChange(eventSourceId = '') {
   'siteFilter',
   'teamFilter',
   'summaryBlocksSelect'
-]
-    ].forEach(id => {
-      document.getElementById(id).addEventListener('change', () => handleControlChange(id));
-    });
+].forEach(id => {
+  document.getElementById(id).addEventListener('change', () => handleControlChange(id));
+});
 
     document.getElementById('exportPngBtn').addEventListener('click', exportPNG);
     document.getElementById('exportPdfBtn').addEventListener('click', exportPDF);
