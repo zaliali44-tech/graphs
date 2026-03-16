@@ -1922,6 +1922,8 @@ function getDualMetricChartConfig(primaryMetric, secondaryMetric) {
     const secondarySettings = secondaryBuilt.settings;
     const secondaryValues = secondaryBuilt.actualSeries[0]?.values || [];
     const primaryValues = primaryActualSeries[0]?.values || [];
+    const primaryTargetValues = primaryTarget || [];
+const primaryForecastValues = primaryForecast || [];
 
     const dualConfig = getDualMetricChartConfig(state.currentMetric, secondaryMetric);
 
@@ -1933,37 +1935,74 @@ function getDualMetricChartConfig(primaryMetric, secondaryMetric) {
     document.getElementById('slideTitleInput').value = title;
 
     datasets = [
-      {
-        label: state.currentMetric,
-        data: primaryValues,
-        type: dualConfig.primaryType,
-        borderColor: colors[0],
-        backgroundColor: dualConfig.primaryType === 'bar' ? withAlpha(colors[0], 0.6) : withAlpha(colors[0], 0.15),
-        pointBackgroundColor: colors[0],
-        pointBorderColor: colors[0],
-        pointRadius: 4,
-        pointHoverRadius: 5,
-        borderWidth: 3,
-        tension: 0.35,
-        fill: false,
-        yAxisID: 'y'
-      },
-      {
-        label: secondaryMetric,
-        data: secondaryValues,
-        type: dualConfig.secondaryType,
-        borderColor: colors[1],
-        backgroundColor: dualConfig.secondaryType === 'bar' ? withAlpha(colors[1], 0.6) : withAlpha(colors[1], 0.15),
-        pointBackgroundColor: colors[1],
-        pointBorderColor: colors[1],
-        pointRadius: 4,
-        pointHoverRadius: 5,
-        borderWidth: 3,
-        tension: 0.35,
-        fill: false,
-        yAxisID: dualConfig.dualAxis ? 'y1' : 'y'
-      }
-    ];
+  {
+    label: state.currentMetric,
+    data: primaryValues,
+    type: dualConfig.primaryType,
+    borderColor: colors[0],
+    backgroundColor: dualConfig.primaryType === 'bar' ? withAlpha(colors[0], 0.6) : withAlpha(colors[0], 0.15),
+    pointBackgroundColor: colors[0],
+    pointBorderColor: colors[0],
+    pointRadius: 4,
+    pointHoverRadius: 5,
+    borderWidth: 3,
+    tension: 0.35,
+    fill: false,
+    yAxisID: 'y'
+  }
+];
+
+if (primaryTargetValues.some(v => v !== null)) {
+  datasets.push({
+    label: `${state.currentMetric} Target`,
+    data: primaryTargetValues,
+    type: 'line',
+    borderColor: '#f59e0b',
+    backgroundColor: 'rgba(245,158,11,0.12)',
+    pointBackgroundColor: '#f59e0b',
+    pointBorderColor: '#f59e0b',
+    pointRadius: 2,
+    borderWidth: 2,
+    borderDash: [6,6],
+    tension: 0.2,
+    fill: false,
+    yAxisID: 'y'
+  });
+}
+
+if (primaryForecastValues.some(v => v !== null)) {
+  datasets.push({
+    label: `${state.currentMetric} Forecast`,
+    data: primaryForecastValues,
+    type: 'line',
+    borderColor: '#8b5cf6',
+    backgroundColor: 'rgba(139,92,246,0.12)',
+    pointBackgroundColor: '#8b5cf6',
+    pointBorderColor: '#8b5cf6',
+    pointRadius: 2,
+    borderWidth: 2,
+    borderDash: [3,4],
+    tension: 0.25,
+    fill: false,
+    yAxisID: 'y'
+  });
+}
+
+datasets.push({
+  label: secondaryMetric,
+  data: secondaryValues,
+  type: dualConfig.secondaryType,
+  borderColor: colors[1],
+  backgroundColor: dualConfig.secondaryType === 'bar' ? withAlpha(colors[1], 0.6) : withAlpha(colors[1], 0.15),
+  pointBackgroundColor: colors[1],
+  pointBorderColor: colors[1],
+  pointRadius: 4,
+  pointHoverRadius: 5,
+  borderWidth: 3,
+  tension: 0.35,
+  fill: false,
+  yAxisID: dualConfig.dualAxis ? 'y1' : 'y'
+});
 
     chartType = 'line';
 
@@ -2279,37 +2318,69 @@ function renderDualMetricInsights(primaryMetric, secondaryMetric, primaryValues,
   const sLatest = lastNonNull(secondaryValues);
   const sPrev = previousNonNull(secondaryValues);
 
-  if (pLatest !== null && pPrev !== null) {
-    const diff = round2(pLatest - pPrev);
-    highlights.push(`${primaryMetric} ${diff >= 0 ? 'changed up' : 'changed down'} by ${Math.abs(diff)}${primarySettings.unit || ''} versus prior period.`);
+  const pDiff = (pLatest !== null && pPrev !== null) ? round2(pLatest - pPrev) : null;
+  const sDiff = (sLatest !== null && sPrev !== null) ? round2(sLatest - sPrev) : null;
+
+  if (pDiff !== null) {
+    highlights.push(`${primaryMetric} ${pDiff >= 0 ? 'changed up' : 'changed down'} by ${Math.abs(pDiff)}${primarySettings.unit || ''} versus prior period.`);
   }
 
-  if (sLatest !== null && sPrev !== null) {
-    const diff = round2(sLatest - sPrev);
-    highlights.push(`${secondaryMetric} ${diff >= 0 ? 'changed up' : 'changed down'} by ${Math.abs(diff)}${secondarySettings.unit || ''} versus prior period.`);
+  if (sDiff !== null) {
+    highlights.push(`${secondaryMetric} ${sDiff >= 0 ? 'changed up' : 'changed down'} by ${Math.abs(sDiff)}${secondarySettings.unit || ''} versus prior period.`);
   }
 
-  if (pLatest !== null && sLatest !== null && pPrev !== null && sPrev !== null) {
-    const pMoveUp = pLatest > pPrev;
-    const sMoveUp = sLatest > sPrev;
+  const primaryGood = pDiff !== null
+    ? (primarySettings.higherIsBetter ? pDiff > 0 : pDiff < 0)
+    : null;
 
-    if (pMoveUp === sMoveUp) {
-      rca.push(`${primaryMetric} and ${secondaryMetric} moved in the same direction in the latest visible period.`);
-    } else {
-      rca.push(`${primaryMetric} and ${secondaryMetric} moved in opposite directions in the latest visible period.`);
+  const secondaryGood = sDiff !== null
+    ? (secondarySettings.higherIsBetter ? sDiff > 0 : sDiff < 0)
+    : null;
+
+  if (primaryGood !== null && secondaryGood !== null) {
+    if (primaryGood && secondaryGood) {
+      rca.push(`${primaryMetric} and ${secondaryMetric} both improved in the latest visible period, suggesting broadly supportive operating conditions.`);
+    } else if (!primaryGood && !secondaryGood) {
+      rca.push(`${primaryMetric} and ${secondaryMetric} both worsened in the latest visible period, which may indicate common pressure from demand, staffing, or process issues.`);
+    } else if (primaryGood && !secondaryGood) {
+      rca.push(`${primaryMetric} improved while ${secondaryMetric} worsened, suggesting the business may be trading off one outcome against the other.`);
+    } else if (!primaryGood && secondaryGood) {
+      rca.push(`${secondaryMetric} improved but ${primaryMetric} weakened, so improvement in one metric is not yet translating into better overall performance.`);
     }
   }
 
-  actions.push(`Review the relationship between ${primaryMetric} and ${secondaryMetric} across the visible periods.`);
-  actions.push(`Use this dual-metric view when leadership needs relationship-based storytelling instead of a single KPI trend.`);
-  actions.push(`Validate whether changes in ${secondaryMetric} are helping or hurting ${primaryMetric}.`);
+  const primaryTargetLatest = lastNonNull(buildSeries(primaryMetric).target || []);
+  if (primaryTargetLatest !== null && pLatest !== null) {
+    const onTarget = primarySettings.higherIsBetter ? pLatest >= primaryTargetLatest : pLatest <= primaryTargetLatest;
+    if (!onTarget) {
+      rca.push(`${primaryMetric} is still outside target in the latest visible period, so the relationship with ${secondaryMetric} should be reviewed in the context of target recovery.`);
+    } else {
+      highlights.push(`${primaryMetric} is currently meeting target in the visible period.`);
+    }
+  }
+
+  const pRange = primaryValues.filter(v => v !== null);
+  const sRange = secondaryValues.filter(v => v !== null);
+
+  if (pRange.length > 2 && sRange.length > 2) {
+    const pMin = Math.min(...pRange);
+    const pMax = Math.max(...pRange);
+    const sMin = Math.min(...sRange);
+    const sMax = Math.max(...sRange);
+
+    highlights.push(`${primaryMetric} ranged from ${pMin}${primarySettings.unit || ''} to ${pMax}${primarySettings.unit || ''}, while ${secondaryMetric} ranged from ${sMin}${secondarySettings.unit || ''} to ${sMax}${secondarySettings.unit || ''}.`);
+  }
+
+  actions.push(`Review the relationship between ${primaryMetric} and ${secondaryMetric} across the visible periods, especially around the latest movement.`);
+  actions.push(`Use filtered or segmented views to confirm whether the visible relationship is consistent across channels, teams, or sites.`);
+  actions.push(`Use this dual-metric chart when leadership needs context on whether movement in ${secondaryMetric} is helping or hurting ${primaryMetric}.`);
 
   document.getElementById('insightBoxHighlights').style.display = '';
   document.getElementById('insightBoxRca').style.display = '';
   document.getElementById('insightBoxAction').style.display = '';
 
   setList('highlightsList', dedupe(highlights).slice(0, 3));
-  setList('rcaList', dedupe(rca.length ? rca : ['No clear directional relationship detected in the visible view.']).slice(0, 3));
+  setList('rcaList', dedupe(rca.length ? rca : [`No strong directional relationship was detected between ${primaryMetric} and ${secondaryMetric} in the visible view.`]).slice(0, 3));
   setList('actionList', dedupe(actions).slice(0, 3));
 }
     function renderSnapshots() {
@@ -2441,7 +2512,7 @@ function handleControlChange(eventSourceId = '') {
     function exportPNG() {
       if (!state.chart) return;
       const link = document.createElement('a');
-      const title = buildChartTitle(state.currentMetric).split(' ').join('_');
+      const title = document.getElementById('chartTitle').textContent.split(' ').join('_');
       link.href = state.chart.toBase64Image('image/png', 1);
       link.download = title + '.png';
       link.click();
