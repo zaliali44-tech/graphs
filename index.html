@@ -1230,16 +1230,18 @@
   </div>
 
   <script>
-    const state = {
-      rawRows: [],
-      metricSettings: {},
-      metrics: [],
-      dimensions: ['LOB', 'Channel', 'Site', 'Team'],
-      currentMode: 'weekly',
-      currentMetric: null,
-      chart: null,
-      clientLogoData: null
-    };
+const state = {
+  rawRows: [],
+  metricSettings: {},
+  metrics: [],
+  dimensions: ['LOB','Channel','Site','Team'],
+  currentMode: 'weekly',
+  currentMetric: null,
+  chart: null,
+  clientLogoData: null,
+  slideTitleTouched: false,
+  customSlideTitle: ''
+};
 
     const demoWorkbook = buildDemoWorkbook();
 
@@ -1631,6 +1633,8 @@ function populateControls() {
         item.onclick = () => {
   state.currentMetric = metric;
   document.getElementById('metricSelect').value = metric;
+  state.slideTitleTouched = false;
+  state.customSlideTitle = '';
   populateChartTypeSelect();
   populateSecondaryMetricSelect();
   renderMetricList();
@@ -1859,30 +1863,41 @@ function getDualMetricChartConfig(primaryMetric, secondaryMetric) {
       return { min: min - pad, max: max + pad };
     }
 
-    const arrowPlugin = {
-      id: 'arrowPlugin',
-      afterDatasetsDraw(chart) {
-        const mode = document.getElementById('breakdownModeSelect').value;
-        if (mode === 'compare') return;
-        const metric = state.currentMetric;
-        const { actualSeries, target, settings } = buildSeries(metric);
-        const actual = actualSeries[0]?.values || [];
-        const previous = actual.map((_, i) => i > 0 ? actual[i - 1] : null);
-        const meta = chart.getDatasetMeta(0);
-        const ctx = chart.ctx;
-        ctx.save();
-        ctx.font = 'bold 14px Inter, Arial, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        meta.data.forEach((point, index) => {
-          const info = getArrowInfo(actual[index], target[index], previous[index], settings.higherIsBetter);
-          if (!info || actual[index] === null) return;
-          ctx.fillStyle = info.color;
-          ctx.fillText(info.arrow, point.x, point.y - 16);
-        });
-        ctx.restore();
-      }
-    };
+const arrowPlugin = {
+  id: 'arrowPlugin',
+  afterDatasetsDraw(chart) {
+    const metric = state.currentMetric;
+    const chartMode = document.getElementById('chartModeSelect')?.value || 'single';
+    const breakdownMode = document.getElementById('breakdownModeSelect').value;
+
+    if (breakdownMode === 'compare') return;
+
+    const { actualSeries, target, settings } = buildSeries(metric);
+    const actual = actualSeries[0]?.values || [];
+    const previous = actual.map((_, i) => i > 0 ? actual[i - 1] : null);
+
+    const meta = chart.getDatasetMeta(0);
+    if (!meta || !meta.data) return;
+
+    const ctx = chart.ctx;
+    ctx.save();
+    ctx.font = 'bold 14px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    meta.data.forEach((point, index) => {
+      if (!point || actual[index] === null || actual[index] === undefined) return;
+
+      const info = getArrowInfo(actual[index], target[index], previous[index], settings.higherIsBetter);
+      if (!info) return;
+
+      ctx.fillStyle = info.color;
+      ctx.fillText(info.arrow, point.x, point.y - 16);
+    });
+
+    ctx.restore();
+  }
+};
 
   function renderChart() {
   if (!state.currentMetric) return;
@@ -1901,7 +1916,10 @@ function getDualMetricChartConfig(primaryMetric, secondaryMetric) {
   let title = buildChartTitle(state.currentMetric);
   let subtitle = buildChartSubtitle(state.currentMetric, primarySettings);
 
+  if (!state.slideTitleTouched) {
+  state.customSlideTitle = title;
   document.getElementById('slideTitleInput').value = title;
+}
 
   const usesWeights = getFilteredRows(state.currentMetric).some(r => r.Weight !== null && r.Weight > 0);
   document.getElementById('aggregationLabel').textContent =
@@ -1932,7 +1950,10 @@ const primaryForecastValues = primaryForecast || [];
 
     document.getElementById('chartTitle').textContent = title;
     document.getElementById('chartSubtitle').textContent = subtitle;
-    document.getElementById('slideTitleInput').value = title;
+    if (!state.slideTitleTouched) {
+  state.customSlideTitle = title;
+  document.getElementById('slideTitleInput').value = title;
+}
 
     datasets = [
   {
@@ -2120,7 +2141,7 @@ datasets.push({
   state.chart = new Chart(ctx, {
     type: chartType,
     data: { labels: primaryPeriods, datasets },
-    plugins: chartMode === 'dual' ? [] : [arrowPlugin],
+    plugins: [arrowPlugin],
     options: {
       animation: false,
       maintainAspectRatio: false,
@@ -2500,8 +2521,10 @@ function handleControlChange(eventSourceId = '') {
   }
 
   if (eventSourceId === 'metricSelect') {
-    populateSecondaryMetricSelect();
-  }
+  state.slideTitleTouched = false;
+  state.customSlideTitle = '';
+  populateSecondaryMetricSelect();
+}
 
   renderMetricList();
   renderChart();
@@ -2512,7 +2535,7 @@ function handleControlChange(eventSourceId = '') {
     function exportPNG() {
       if (!state.chart) return;
       const link = document.createElement('a');
-      const title = document.getElementById('chartTitle').textContent.split(' ').join('_');
+      const title = (document.getElementById('slideTitleInput').value || document.getElementById('chartTitle').textContent || buildChartTitle(state.currentMetric)).split(' ').join('_');
       link.href = state.chart.toBase64Image('image/png', 1);
       link.download = title + '.png';
       link.click();
@@ -2521,7 +2544,7 @@ function handleControlChange(eventSourceId = '') {
     function exportPDF() {
       if (!state.chart) return;
 
-      const title = buildChartTitle(state.currentMetric);
+      const title = document.getElementById('slideTitleInput').value || document.getElementById('chartTitle').textContent || buildChartTitle(state.currentMetric);
       const subtitle = document.getElementById('chartSubtitle').textContent;
       const aggregation = document.getElementById('aggregationLabel').textContent;
       const highlights = Array.from(document.querySelectorAll('#highlightsList li')).map(li => li.textContent);
@@ -3132,7 +3155,8 @@ function handleControlChange(eventSourceId = '') {
 
           slide = pptx.addSlide();
           slide.background = { color: theme.bg };
-          pptAddHeader(slide, buildChartTitle(metric), document.getElementById('chartSubtitle').textContent || '', theme);
+          const exportSlideTitle = document.getElementById('slideTitleInput').value || document.getElementById('chartTitle').textContent || buildChartTitle(metric);
+pptAddHeader(slide, exportSlideTitle, document.getElementById('chartSubtitle').textContent || '', theme);
 
           pptAddKicker(slide, document.getElementById('aggregationLabel').textContent || 'Current view', 0.6, 0.86, 2.45, theme);
 
@@ -3243,7 +3267,10 @@ function handleControlChange(eventSourceId = '') {
     document.getElementById('monthlyBtn').addEventListener('click', () => setViewMode('monthly'));
     document.getElementById('modeWeeklyStudio').addEventListener('click', () => setViewMode('weekly'));
     document.getElementById('modeMonthlyStudio').addEventListener('click', () => setViewMode('monthly'));
-
+document.getElementById('slideTitleInput').addEventListener('input', e => {
+  state.customSlideTitle = e.target.value.trim();
+  state.slideTitleTouched = true;
+});
     [
   'metricSelect',
   'buildModeSelect',
