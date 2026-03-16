@@ -1068,9 +1068,22 @@
             </div>
             <div class="card-body">
               <div class="field">
-                <label>Chart Type</label>
-                <select id="chartTypeSelect"></select>
-              </div>
+  <label>Chart Mode</label>
+  <select id="chartModeSelect">
+    <option value="single">Single Metric</option>
+    <option value="dual">Dual Metric</option>
+  </select>
+</div>
+
+<div class="field" style="margin-top:12px;">
+  <label>Chart Type</label>
+  <select id="chartTypeSelect"></select>
+</div>
+
+<div class="field" style="margin-top:12px;">
+  <label>Secondary Metric</label>
+  <select id="secondaryMetricSelect"></select>
+</div>
 
               <div class="field" style="margin-top:12px;">
                 <label>Breakdown Mode</label>
@@ -1567,7 +1580,26 @@
       const values = [...new Set(state.rawRows.map(r => normalizeString(r[dimension])).filter(Boolean))];
       fillSelect('dimensionValueSelect', ['All', ...values], 'All');
     }
+function populateSecondaryMetricSelect() {
+  const primary = state.currentMetric;
+  const options = state.metrics.filter(m => m !== primary);
+  const el = document.getElementById('secondaryMetricSelect');
+  const current = el.value;
 
+  el.innerHTML = '';
+
+  options.forEach(metric => {
+    const opt = document.createElement('option');
+    opt.value = metric;
+    opt.textContent = metric;
+    if (metric === current) opt.selected = true;
+    el.appendChild(opt);
+  });
+
+  if (!el.value && options.length) {
+    el.value = options[0];
+  }
+}
     function populateChartTypeSelect() {
       const metric = state.currentMetric;
       const preferred = state.metricSettings[metric]?.preferredChartType || 'Line';
@@ -1575,17 +1607,18 @@
       document.getElementById('chartTypeSelect').dataset.preferred = preferred;
     }
 
-    function populateControls() {
-      fillSelect('metricSelect', state.metrics, state.currentMetric);
-      fillSelect('dimensionSelect', ['Channel','LOB','Site','Team'], document.getElementById('dimensionSelect').value || 'Channel');
-      fillDimensionValueSelect();
-      fillFilterSelect('lobFilter', 'LOB');
-      fillFilterSelect('channelFilter', 'Channel');
-      fillFilterSelect('siteFilter', 'Site');
-      fillFilterSelect('teamFilter', 'Team');
-      populateChartTypeSelect();
-      syncStudioControls();
-    }
+function populateControls() {
+  fillSelect('metricSelect', state.metrics, state.currentMetric);
+  fillSelect('dimensionSelect', ['Channel','LOB','Site','Team'], document.getElementById('dimensionSelect').value || 'Channel');
+  fillDimensionValueSelect();
+  fillFilterSelect('lobFilter', 'LOB');
+  fillFilterSelect('channelFilter', 'Channel');
+  fillFilterSelect('siteFilter', 'Site');
+  fillFilterSelect('teamFilter', 'Team');
+  populateChartTypeSelect();
+  populateSecondaryMetricSelect();
+  syncStudioControls();
+}
 
     function renderMetricList() {
       const list = document.getElementById('metricList');
@@ -1596,15 +1629,16 @@
         item.className = 'metric-item' + (metric === state.currentMetric ? ' active' : '');
         item.innerHTML = `<h4>${metric}</h4><p>${settings.metricGroup || 'General'} KPI · ${settings.preferredChartType || 'Auto'} suggested</p>`;
         item.onclick = () => {
-          state.currentMetric = metric;
-          document.getElementById('metricSelect').value = metric;
-          populateChartTypeSelect();
-          renderMetricList();
-          renderSuggestions();
-          renderChart();
-          renderSnapshots();
-          renderExecutiveSummary();
-        };
+  state.currentMetric = metric;
+  document.getElementById('metricSelect').value = metric;
+  populateChartTypeSelect();
+  populateSecondaryMetricSelect();
+  renderMetricList();
+  renderSuggestions();
+  renderChart();
+  renderSnapshots();
+  renderExecutiveSummary();
+};
         list.appendChild(item);
       });
     }
@@ -1760,7 +1794,51 @@
       parts.push(settings.higherIsBetter ? 'higher is better' : 'lower is better');
       return parts.join(' · ');
     }
+function getDualMetricChartConfig(primaryMetric, secondaryMetric) {
+  const primarySettings = state.metricSettings[primaryMetric] || {};
+  const secondarySettings = state.metricSettings[secondaryMetric] || {};
 
+  const pUnit = normalizeString(primarySettings.unit).toLowerCase();
+  const sUnit = normalizeString(secondarySettings.unit).toLowerCase();
+
+  const pair = `${primaryMetric.toLowerCase()}|${secondaryMetric.toLowerCase()}`;
+
+  if (
+    pair.includes('sla') && pair.includes('aht') ||
+    pair.includes('occupancy') && pair.includes('aht')
+  ) {
+    return {
+      primaryType: 'line',
+      secondaryType: 'line',
+      dualAxis: true
+    };
+  }
+
+  if (
+    pair.includes('volume') && pair.includes('sla') ||
+    pair.includes('volume') && pair.includes('response')
+  ) {
+    return {
+      primaryType: primaryMetric.toLowerCase().includes('volume') ? 'bar' : 'line',
+      secondaryType: secondaryMetric.toLowerCase().includes('volume') ? 'bar' : 'line',
+      dualAxis: true
+    };
+  }
+
+  if (pUnit && sUnit && pUnit === sUnit) {
+    return {
+      primaryType: 'line',
+      secondaryType: 'line',
+      dualAxis: false
+    };
+  }
+
+  return {
+    primaryType: 'line',
+    secondaryType: 'line',
+    dualAxis: true
+  };
+}
     function getArrowInfo(actualValue, targetValue, previousValue, higherIsBetter) {
       let compareValue = null;
       if (targetValue !== null && targetValue !== undefined) compareValue = targetValue;
@@ -1806,126 +1884,225 @@
       }
     };
 
-    function renderChart() {
-      if (!state.currentMetric) return;
+  function renderChart() {
+  if (!state.currentMetric) return;
 
-      const built = buildSeries(state.currentMetric);
-      const periods = built.periods;
-      const actualSeries = built.actualSeries;
-      const target = built.target;
-      const forecast = built.forecast;
-      const settings = built.settings;
-      const effectiveMode = built.effectiveMode;
+  const chartMode = document.getElementById('chartModeSelect')?.value || 'single';
+  const secondaryMetric = document.getElementById('secondaryMetricSelect')?.value || null;
 
-      document.getElementById('chartTitle').textContent = buildChartTitle(state.currentMetric);
-      document.getElementById('chartSubtitle').textContent = buildChartSubtitle(state.currentMetric, settings);
-      document.getElementById('slideTitleInput').value = buildChartTitle(state.currentMetric);
+  const primaryBuilt = buildSeries(state.currentMetric);
+  const primaryPeriods = primaryBuilt.periods;
+  const primaryActualSeries = primaryBuilt.actualSeries;
+  const primaryTarget = primaryBuilt.target;
+  const primaryForecast = primaryBuilt.forecast;
+  const primarySettings = primaryBuilt.settings;
+  const effectiveMode = primaryBuilt.effectiveMode;
 
-      const usesWeights = getFilteredRows(state.currentMetric).some(r => r.Weight !== null && r.Weight > 0);
-      document.getElementById('aggregationLabel').textContent =
-        effectiveMode === 'overall'
-          ? 'Aggregation: ' + (usesWeights ? 'Weighted Overall' : 'Simple Average')
-          : 'Aggregation: Segmented View';
+  let title = buildChartTitle(state.currentMetric);
+  let subtitle = buildChartSubtitle(state.currentMetric, primarySettings);
 
-      const ctx = document.getElementById('mainChart').getContext('2d');
-      if (state.chart) state.chart.destroy();
+  document.getElementById('slideTitleInput').value = title;
 
-      const chosenType = document.getElementById('chartTypeSelect').value;
-      const baseType = chosenType === 'Auto Suggested' ? suggestChart(state.currentMetric) : chosenType;
-      const chartType = ['Bar', 'Clustered Bar'].includes(baseType) ? 'bar' : 'line';
+  const usesWeights = getFilteredRows(state.currentMetric).some(r => r.Weight !== null && r.Weight > 0);
+  document.getElementById('aggregationLabel').textContent =
+    effectiveMode === 'overall'
+      ? 'Aggregation: ' + (usesWeights ? 'Weighted Overall' : 'Simple Average')
+      : 'Aggregation: Segmented View';
 
-      const colors = ['#38bdf8','#14b8a6','#8b5cf6','#f59e0b','#ef4444','#22c55e'];
-      const datasets = actualSeries.map((series, index) => ({
-        label: series.label,
-        data: series.values,
-        borderColor: colors[index % colors.length],
-        backgroundColor: chartType === 'bar' ? withAlpha(colors[index % colors.length], 0.6) : withAlpha(colors[index % colors.length], 0.18),
-        pointBackgroundColor: colors[index % colors.length],
-        pointBorderColor: colors[index % colors.length],
+  const ctx = document.getElementById('mainChart').getContext('2d');
+  if (state.chart) state.chart.destroy();
+
+  const colors = ['#38bdf8','#14b8a6','#8b5cf6','#f59e0b','#ef4444','#22c55e'];
+  let datasets = [];
+  let chartType = 'line';
+  let chartOptionsScales = {};
+
+  if (chartMode === 'dual' && secondaryMetric && secondaryMetric !== state.currentMetric) {
+    const secondaryBuilt = buildSeries(secondaryMetric);
+    const secondarySettings = secondaryBuilt.settings;
+    const secondaryValues = secondaryBuilt.actualSeries[0]?.values || [];
+    const primaryValues = primaryActualSeries[0]?.values || [];
+
+    const dualConfig = getDualMetricChartConfig(state.currentMetric, secondaryMetric);
+
+    title = `${state.currentMetric} vs ${secondaryMetric}`;
+    subtitle = `${state.currentMode === 'weekly' ? 'Weekly' : 'Monthly'} comparison view · dual metric analysis`;
+
+    document.getElementById('chartTitle').textContent = title;
+    document.getElementById('chartSubtitle').textContent = subtitle;
+    document.getElementById('slideTitleInput').value = title;
+
+    datasets = [
+      {
+        label: state.currentMetric,
+        data: primaryValues,
+        type: dualConfig.primaryType,
+        borderColor: colors[0],
+        backgroundColor: dualConfig.primaryType === 'bar' ? withAlpha(colors[0], 0.6) : withAlpha(colors[0], 0.15),
+        pointBackgroundColor: colors[0],
+        pointBorderColor: colors[0],
         pointRadius: 4,
         pointHoverRadius: 5,
         borderWidth: 3,
         tension: 0.35,
-        fill: chartType === 'line' && actualSeries.length === 1
-      }));
-
-      if (actualSeries.length === 1 && target.some(v => v !== null)) {
-        datasets.push({
-          label: 'Target',
-          data: target,
-          borderColor: '#f59e0b',
-          backgroundColor: 'rgba(245,158,11,0.15)',
-          pointBackgroundColor: '#f59e0b',
-          pointBorderColor: '#f59e0b',
-          pointRadius: 3,
-          borderWidth: 2,
-          borderDash: [6,6],
-          tension: 0.2,
-          fill: false,
-          type: 'line'
-        });
+        fill: false,
+        yAxisID: 'y'
+      },
+      {
+        label: secondaryMetric,
+        data: secondaryValues,
+        type: dualConfig.secondaryType,
+        borderColor: colors[1],
+        backgroundColor: dualConfig.secondaryType === 'bar' ? withAlpha(colors[1], 0.6) : withAlpha(colors[1], 0.15),
+        pointBackgroundColor: colors[1],
+        pointBorderColor: colors[1],
+        pointRadius: 4,
+        pointHoverRadius: 5,
+        borderWidth: 3,
+        tension: 0.35,
+        fill: false,
+        yAxisID: dualConfig.dualAxis ? 'y1' : 'y'
       }
+    ];
 
-      if (actualSeries.length === 1 && forecast.some(v => v !== null)) {
-        datasets.push({
-          label: 'Forecast',
-          data: forecast,
-          borderColor: '#8b5cf6',
-          backgroundColor: 'rgba(139,92,246,0.12)',
-          pointBackgroundColor: '#8b5cf6',
-          pointBorderColor: '#8b5cf6',
-          pointRadius: 3,
-          borderWidth: 2,
-          tension: 0.25,
-          fill: false,
-          type: 'line'
-        });
-      }
+    chartType = 'line';
 
-      const bounds = getAxisBounds(datasets);
-
-      state.chart = new Chart(ctx, {
-        type: chartType,
-        data: { labels: periods, datasets },
-        plugins: [arrowPlugin],
-        options: {
-          animation: false,
-          maintainAspectRatio: false,
-          responsive: true,
-          layout: { padding: { top: 28, right: 12, bottom: 8, left: 8 } },
-          plugins: {
-            legend: {
-              labels: { color: '#dce7fa', boxWidth: 14, font: { size: 12, weight: '700' } }
-            },
-            tooltip: {
-              backgroundColor: '#0f172a',
-              titleColor: '#fff',
-              bodyColor: '#dbe9ff',
-              borderColor: 'rgba(255,255,255,.1)',
-              borderWidth: 1
-            }
-          },
-          scales: {
-            x: {
-              ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
-              grid: { color: 'rgba(255,255,255,.06)' },
-              border: { display: true, color: 'rgba(255,255,255,.22)', width: 2 },
-              title: { display: true, text: 'Reporting Period', color: '#eef4ff', font: { size: 13, weight: '800' } }
-            },
-            y: {
-              min: bounds.min,
-              max: bounds.max,
-              ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
-              grid: { color: 'rgba(255,255,255,.08)' },
-              border: { display: true, color: 'rgba(255,255,255,.28)', width: 2 },
-              title: { display: true, text: settings.unit ? 'Metric Value (' + settings.unit + ')' : 'Metric Value', color: '#eef4ff', font: { size: 13, weight: '800' } }
-            }
-          }
+    chartOptionsScales = {
+      x: {
+        ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
+        grid: { color: 'rgba(255,255,255,.06)' },
+        border: { display: true, color: 'rgba(255,255,255,.22)', width: 2 },
+        title: { display: true, text: 'Reporting Period', color: '#eef4ff', font: { size: 13, weight: '800' } }
+      },
+      y: {
+        position: 'left',
+        ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
+        grid: { color: 'rgba(255,255,255,.08)' },
+        border: { display: true, color: 'rgba(255,255,255,.28)', width: 2 },
+        title: {
+          display: true,
+          text: primarySettings.unit ? `${state.currentMetric} (${primarySettings.unit})` : state.currentMetric,
+          color: '#eef4ff',
+          font: { size: 13, weight: '800' }
         }
-      });
+      },
+      y1: {
+        position: 'right',
+        ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
+        grid: { drawOnChartArea: false },
+        border: { display: true, color: 'rgba(255,255,255,.28)', width: 2 },
+        title: {
+          display: dualConfig.dualAxis,
+          text: secondarySettings.unit ? `${secondaryMetric} (${secondarySettings.unit})` : secondaryMetric,
+          color: '#eef4ff',
+          font: { size: 13, weight: '800' }
+        }
+      }
+    };
 
-      renderInsights(periods, actualSeries, target, settings);
+    renderDualMetricInsights(state.currentMetric, secondaryMetric, primaryValues, secondaryValues, primarySettings, secondarySettings);
+  } else {
+    document.getElementById('chartTitle').textContent = title;
+    document.getElementById('chartSubtitle').textContent = subtitle;
+
+    const chosenType = document.getElementById('chartTypeSelect').value;
+    const baseType = chosenType === 'Auto Suggested' ? suggestChart(state.currentMetric) : chosenType;
+    chartType = ['Bar', 'Clustered Bar'].includes(baseType) ? 'bar' : 'line';
+
+    datasets = primaryActualSeries.map((series, index) => ({
+      label: series.label,
+      data: series.values,
+      borderColor: colors[index % colors.length],
+      backgroundColor: chartType === 'bar' ? withAlpha(colors[index % colors.length], 0.6) : withAlpha(colors[index % colors.length], 0.18),
+      pointBackgroundColor: colors[index % colors.length],
+      pointBorderColor: colors[index % colors.length],
+      pointRadius: 4,
+      pointHoverRadius: 5,
+      borderWidth: 3,
+      tension: 0.35,
+      fill: chartType === 'line' && primaryActualSeries.length === 1
+    }));
+
+    if (primaryActualSeries.length === 1 && primaryTarget.some(v => v !== null)) {
+      datasets.push({
+        label: 'Target',
+        data: primaryTarget,
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245,158,11,0.15)',
+        pointBackgroundColor: '#f59e0b',
+        pointBorderColor: '#f59e0b',
+        pointRadius: 3,
+        borderWidth: 2,
+        borderDash: [6,6],
+        tension: 0.2,
+        fill: false,
+        type: 'line'
+      });
     }
+
+    if (primaryActualSeries.length === 1 && primaryForecast.some(v => v !== null)) {
+      datasets.push({
+        label: 'Forecast',
+        data: primaryForecast,
+        borderColor: '#8b5cf6',
+        backgroundColor: 'rgba(139,92,246,0.12)',
+        pointBackgroundColor: '#8b5cf6',
+        pointBorderColor: '#8b5cf6',
+        pointRadius: 3,
+        borderWidth: 2,
+        tension: 0.25,
+        fill: false,
+        type: 'line'
+      });
+    }
+
+    const bounds = getAxisBounds(datasets);
+
+    chartOptionsScales = {
+      x: {
+        ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
+        grid: { color: 'rgba(255,255,255,.06)' },
+        border: { display: true, color: 'rgba(255,255,255,.22)', width: 2 },
+        title: { display: true, text: 'Reporting Period', color: '#eef4ff', font: { size: 13, weight: '800' } }
+      },
+      y: {
+        min: bounds.min,
+        max: bounds.max,
+        ticks: { color: '#d7e3f5', font: { size: 12, weight: '700' } },
+        grid: { color: 'rgba(255,255,255,.08)' },
+        border: { display: true, color: 'rgba(255,255,255,.28)', width: 2 },
+        title: { display: true, text: primarySettings.unit ? 'Metric Value (' + primarySettings.unit + ')' : 'Metric Value', color: '#eef4ff', font: { size: 13, weight: '800' } }
+      }
+    };
+
+    renderInsights(primaryPeriods, primaryActualSeries, primaryTarget, primarySettings);
+  }
+
+  state.chart = new Chart(ctx, {
+    type: chartType,
+    data: { labels: primaryPeriods, datasets },
+    plugins: chartMode === 'dual' ? [] : [arrowPlugin],
+    options: {
+      animation: false,
+      maintainAspectRatio: false,
+      responsive: true,
+      layout: { padding: { top: 28, right: 12, bottom: 8, left: 8 } },
+      plugins: {
+        legend: {
+          labels: { color: '#dce7fa', boxWidth: 14, font: { size: 12, weight: '700' } }
+        },
+        tooltip: {
+          backgroundColor: '#0f172a',
+          titleColor: '#fff',
+          bodyColor: '#dbe9ff',
+          borderColor: 'rgba(255,255,255,.1)',
+          borderWidth: 1
+        }
+      },
+      scales: chartOptionsScales
+    }
+  });
+}
 
     function generateMetricSpecificActions(metric, settings, latest, targetLatest) {
       const key = metric.toLowerCase();
@@ -2092,7 +2269,49 @@
       setList('rcaList', showRca ? dedupe(rca.length ? rca : ['No major RCA issue detected in the visible view.']).slice(0, 3) : []);
       setList('actionList', showActions ? dedupe(actions).slice(0, 3) : []);
     }
+function renderDualMetricInsights(primaryMetric, secondaryMetric, primaryValues, secondaryValues, primarySettings, secondarySettings) {
+  const highlights = [];
+  const rca = [];
+  const actions = [];
 
+  const pLatest = lastNonNull(primaryValues);
+  const pPrev = previousNonNull(primaryValues);
+  const sLatest = lastNonNull(secondaryValues);
+  const sPrev = previousNonNull(secondaryValues);
+
+  if (pLatest !== null && pPrev !== null) {
+    const diff = round2(pLatest - pPrev);
+    highlights.push(`${primaryMetric} ${diff >= 0 ? 'changed up' : 'changed down'} by ${Math.abs(diff)}${primarySettings.unit || ''} versus prior period.`);
+  }
+
+  if (sLatest !== null && sPrev !== null) {
+    const diff = round2(sLatest - sPrev);
+    highlights.push(`${secondaryMetric} ${diff >= 0 ? 'changed up' : 'changed down'} by ${Math.abs(diff)}${secondarySettings.unit || ''} versus prior period.`);
+  }
+
+  if (pLatest !== null && sLatest !== null && pPrev !== null && sPrev !== null) {
+    const pMoveUp = pLatest > pPrev;
+    const sMoveUp = sLatest > sPrev;
+
+    if (pMoveUp === sMoveUp) {
+      rca.push(`${primaryMetric} and ${secondaryMetric} moved in the same direction in the latest visible period.`);
+    } else {
+      rca.push(`${primaryMetric} and ${secondaryMetric} moved in opposite directions in the latest visible period.`);
+    }
+  }
+
+  actions.push(`Review the relationship between ${primaryMetric} and ${secondaryMetric} across the visible periods.`);
+  actions.push(`Use this dual-metric view when leadership needs relationship-based storytelling instead of a single KPI trend.`);
+  actions.push(`Validate whether changes in ${secondaryMetric} are helping or hurting ${primaryMetric}.`);
+
+  document.getElementById('insightBoxHighlights').style.display = '';
+  document.getElementById('insightBoxRca').style.display = '';
+  document.getElementById('insightBoxAction').style.display = '';
+
+  setList('highlightsList', dedupe(highlights).slice(0, 3));
+  setList('rcaList', dedupe(rca.length ? rca : ['No clear directional relationship detected in the visible view.']).slice(0, 3));
+  setList('actionList', dedupe(actions).slice(0, 3));
+}
     function renderSnapshots() {
       const metricCards = state.metrics.map(metric => {
         const { actualSeries, target, settings } = buildSeries(metric);
@@ -2191,29 +2410,33 @@
       }
     }
 
-    function handleControlChange(eventSourceId = '') {
-      state.currentMetric = document.getElementById('metricSelect').value;
+function handleControlChange(eventSourceId = '') {
+  state.currentMetric = document.getElementById('metricSelect').value;
 
-      if (eventSourceId === 'buildModeSelect') {
-        const buildModeValue = document.getElementById('buildModeSelect').value;
-        if (buildModeValue === 'overall') {
-          document.getElementById('breakdownModeSelect').value = 'overall';
-        } else if (buildModeValue === 'compare') {
-          document.getElementById('breakdownModeSelect').value = 'compare';
-        } else if (buildModeValue === 'filter') {
-          document.getElementById('breakdownModeSelect').value = 'overall';
-        }
-      }
-
-      if (eventSourceId === 'dimensionSelect') {
-        fillDimensionValueSelect();
-      }
-
-      renderMetricList();
-      renderChart();
-      renderSnapshots();
-      renderExecutiveSummary();
+  if (eventSourceId === 'buildModeSelect') {
+    const buildModeValue = document.getElementById('buildModeSelect').value;
+    if (buildModeValue === 'overall') {
+      document.getElementById('breakdownModeSelect').value = 'overall';
+    } else if (buildModeValue === 'compare') {
+      document.getElementById('breakdownModeSelect').value = 'compare';
+    } else if (buildModeValue === 'filter') {
+      document.getElementById('breakdownModeSelect').value = 'overall';
     }
+  }
+
+  if (eventSourceId === 'dimensionSelect') {
+    fillDimensionValueSelect();
+  }
+
+  if (eventSourceId === 'metricSelect') {
+    populateSecondaryMetricSelect();
+  }
+
+  renderMetricList();
+  renderChart();
+  renderSnapshots();
+  renderExecutiveSummary();
+}
 
     function exportPNG() {
       if (!state.chart) return;
@@ -2951,17 +3174,21 @@
     document.getElementById('modeMonthlyStudio').addEventListener('click', () => setViewMode('monthly'));
 
     [
-      'metricSelect',
-      'buildModeSelect',
-      'dimensionSelect',
-      'dimensionValueSelect',
-      'chartTypeSelect',
-      'breakdownModeSelect',
-      'lobFilter',
-      'channelFilter',
-      'siteFilter',
-      'teamFilter',
-      'summaryBlocksSelect'
+     [
+  'metricSelect',
+  'buildModeSelect',
+  'dimensionSelect',
+  'dimensionValueSelect',
+  'chartModeSelect',
+  'secondaryMetricSelect',
+  'chartTypeSelect',
+  'breakdownModeSelect',
+  'lobFilter',
+  'channelFilter',
+  'siteFilter',
+  'teamFilter',
+  'summaryBlocksSelect'
+]
     ].forEach(id => {
       document.getElementById(id).addEventListener('change', () => handleControlChange(id));
     });
